@@ -1,0 +1,181 @@
+=head1 NAME
+
+Apache::Solr::JSON - Apache Solr (Lucene) client via JSON
+
+=head1 INHERITANCE
+
+ Apache::Solr::JSON
+   is a Apache::Solr
+
+=head1 SYNOPSIS
+
+  my $solr = Apache::Solr::JSON->new(...);
+  my $solr = Apache::Solr->new(format => 'JSON', ...);
+
+=head1 DESCRIPTION
+
+Implement the Solr client, where the communication is in JSON.
+
+=head1 METHODS
+
+=head2 Constructors
+
+=over 4
+
+=item Apache::Solr::JSON-E<gt>B<new>(OPTIONS)
+
+ -Option        --Defined in     --Default
+  agent           Apache::Solr     <created internally>
+  autocommit      Apache::Solr     true
+  core            Apache::Solr     undef
+  format          Apache::Solr     'JSON'
+  json                             <created internally>
+  server_version  Apache::Solr     <latest>
+
+=over 2
+
+=item agent => LWP::UserAgent object
+
+=item autocommit => BOOLEAN
+
+=item core => NAME
+
+=item format => 'XML'|'JSON'
+
+=item json => JSON object
+
+=item server_version => VERSION
+
+=back
+
+=back
+
+=head2 Accessors
+
+=over 4
+
+=item $obj-E<gt>B<agent>()
+
+See L<Apache::Solr/"Accessors">
+
+=item $obj-E<gt>B<autocommit>([BOOLEAN])
+
+See L<Apache::Solr/"Accessors">
+
+=item $obj-E<gt>B<core>([CORE])
+
+See L<Apache::Solr/"Accessors">
+
+=item $obj-E<gt>B<json>()
+
+=item $obj-E<gt>B<server>([URI|STRING])
+
+See L<Apache::Solr/"Accessors">
+
+=item $obj-E<gt>B<serverVersion>()
+
+See L<Apache::Solr/"Accessors">
+
+=back
+
+=head2 Commands
+
+See F<http://wiki.apache.org/solr/UpdateJSON>
+
+=head3 Search
+
+=over 4
+
+=item $obj-E<gt>B<select>(PARAMETERS)
+
+See L<Apache::Solr/"Search">
+
+=back
+
+=head3 Updates
+
+=over 4
+
+=item $obj-E<gt>B<addDocument>(DOC|ARRAY, OPTIONS)
+
+See L<Apache::Solr/"Updates">
+
+=item $obj-E<gt>B<commit>(OPTIONS)
+
+See L<Apache::Solr/"Updates">
+
+=item $obj-E<gt>B<delete>(OPTIONS)
+
+See L<Apache::Solr/"Updates">
+
+=item $obj-E<gt>B<optimize>(OPTIONS)
+
+See L<Apache::Solr/"Updates">
+
+=item $obj-E<gt>B<rollback>()
+
+See L<Apache::Solr/"Updates">
+
+=back
+
+=head2 Queries
+
+=over 4
+
+=item $obj-E<gt>B<queryTerms>(TERMS)
+
+See L<Apache::Solr/"Queries">
+
+=back
+
+=head2 Parameters
+
+=over 4
+
+=item $obj-E<gt>B<expandSelect>(PAIRS)
+
+See L<Apache::Solr/"Parameters">
+
+=item $obj-E<gt>B<expandTerms>(PAIRS|ARRAY)
+
+See L<Apache::Solr/"Parameters">
+
+=back
+
+=head2 Helpers
+
+=over 4
+
+=item $obj-E<gt>B<deprecated>(MESSAGE)
+
+See L<Apache::Solr/"Helpers">
+
+=item $obj-E<gt>B<endpoint>(ACTION, OPTIONS)
+
+See L<Apache::Solr/"Helpers">
+
+=item $obj-E<gt>B<ignored>(MESSAGE)
+
+See L<Apache::Solr/"Helpers">
+
+=item $obj-E<gt>B<simpleDocument>(COMMAND, [ATTRIBUTES, [CONTENT]])
+
+Construct a simple XML structure.
+
+=item $obj-E<gt>B<simpleUpdate>(COMMAND, ATTRIBUTES, [CONTENT])
+
+=back
+
+=head1 SEE ALSO
+
+This module is part of Apache-Solr distribution version 0.90,
+built on December 03, 2012. Website: F<http://perl.overmeer.net>
+
+=head1 LICENSE
+
+Copyrights 2012 by [Mark Overmeer]. For other contributors see ChangeLog.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+See F<http://www.perl.com/perl/misc/Artistic.html>
+
