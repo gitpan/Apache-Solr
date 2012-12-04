@@ -4,7 +4,9 @@ Apache::Solr::Result - Apache Solr (Lucene) result container
 
 =head1 SYNOPSIS
 
-  my $doc = Apache::Solr::Result->new(...);
+  my $result = $solr->select(...);
+  my $result = $solr->queryTerm(...);
+  $result or die $result->error;  # $result is object but false
 
 =head1 METHODS
 
@@ -86,16 +88,20 @@ example:
 
 =over 4
 
+=item $obj-E<gt>B<highlighted>(DOCUMENT)
+
+Return information which relates to the selected DOCUMENT.
+
 =item $obj-E<gt>B<nrSelected>()
 
 Returns the number of selected documents, as result of a
 L<Apache::Solr::select()|Apache::Solr/"Search"> call.  Probably many of those documents are
 not loaded (yet).
 
-=item $obj-E<gt>B<selected>(INDEX [,CLIENT])
+=item $obj-E<gt>B<selected>(RANK [,CLIENT])
 
 Returns information about the query by L<Apache::Solr::select()|Apache::Solr/"Search"> on
-position INDEX.  Returned is a HASH, which can have fields 'doc' and 'hl'
+position RANK.  Returned is a HASH, which can have fields 'doc' and 'hl'
 (maybe more later)
 
 The first request will take a certain number of "rows".  If you pass
@@ -114,7 +120,7 @@ example:
 
 =item $obj-E<gt>B<terms>(FIELD [, TERMS])
 
-Returns the results of a 'terms' query (see L<Apache::Solr::queryTerms()|Apache::Solr/"Queries">),
+Returns the results of a 'terms' query (see L<Apache::Solr::queryTerms()|Apache::Solr/"Search">),
 which is a HASH.
 
 When TERMS are specified, a new table is set.
@@ -132,9 +138,9 @@ So: their sort order is lost.
 
 =item $obj-E<gt>B<selectedPage>(PAGENR)
 
-=item $obj-E<gt>B<selectedPageLoad>(INDEX, CLIENT)
+=item $obj-E<gt>B<selectedPageLoad>(RANK, CLIENT)
 
-=item $obj-E<gt>B<selectedPageNr>(INDEX)
+=item $obj-E<gt>B<selectedPageNr>(RANK)
 
 =item $obj-E<gt>B<selectedPageSize>()
 
@@ -157,8 +163,8 @@ file-handle (probably STDOUT).
 
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.90,
-built on December 03, 2012. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 0.91,
+built on December 04, 2012. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 

@@ -4,7 +4,7 @@
 # Pod stripped from pm file by OODoc 2.00.
 package Apache::Solr;
 use vars '$VERSION';
-$VERSION = '0.90';
+$VERSION = '0.91';
 
 
 use warnings;
@@ -16,8 +16,12 @@ use Log::Report    qw(solr);
 use URI            ();
 use Scalar::Util   qw(blessed);
 use LWP::UserAgent ();
+use Encode         qw(encode);
 
 use constant LATEST_SOLR_VERSION => '4.0';  # newest support by this module
+
+# overrule this when your host has a different unique field
+our $uniqueKey = 'id';
 
 sub _to_bool($)
 { $_[0] && $_[0] ne 'false' && $_[0] ne 'off' ? 'true' : 'false' }
@@ -71,6 +75,14 @@ sub select(@)
 }
 sub _select(@) {panic "not extended"}
 
+
+sub queryTerms(@)
+{   my $self  = shift;
+    $self->_terms(scalar $self->expandTerms(@_));
+}
+sub _terms(@) {panic "not implemented"}
+
+#-------------------------------------
 
 sub addDocument($%)
 {   my ($self, $docs, %args) = @_;
@@ -201,13 +213,39 @@ sub rollback()
     $self->_rollback;
 }
 
-#--------------------------
 
-sub queryTerms(@)
+sub extractDocument(@)
 {   my $self  = shift;
-    $self->_terms(scalar $self->expandTerms(@_));
+    my %p     = $self->expandExtract(@_);
+    my $data;
+error __x"extractDocument() is work in progress: please upgrade";
+
+    if(my $fn = delete $p{file})
+    {   local $/;
+        if(ref $fn eq 'GLOB') { $data = <$fn> }
+        else
+        {   local *IN;
+            open IN, '<:raw', $fn
+                or fault __x"cannot read document from {fn}", fn => $fn;
+            $data = <IN>;
+            close IN
+                or fault __x"read error for document {fn}", fn => $fn;
+            $p{'resource.name'} ||= $fn;
+        }
+    }
+    elsif(defined $p{string})
+    {   # try to avoid copying the data, which can be huge
+        my $data = ref $p{string} eq 'SCALAR'
+                 ? encode(utf8 => ${$p{string}})
+                 : encode(utf8 => $p{string});
+    }
+    else
+    {   error __x"extract requires document as file or string";
+    }
+
+    $self->_extract([%p], \$data);
 }
-sub _terms(@) {panic "not implemented"}
+sub _extract($){panic "not implemented"}
 
 #--------------------------
 
@@ -256,6 +294,14 @@ sub expandTerms(@)
 }
 
 
+sub expandExtract(@)
+{   my $self = shift;
+    my $p    = @_==1 ? shift : [@_];
+    my @t    = $self->_simpleExpand($p);
+    wantarray ? @t : \@t;
+}
+
+
 my %sets =   #also-per-field?  (probably more config later)
   ( facet => [1]
   , hl    => [1]
@@ -298,12 +344,11 @@ sub expandSelect(@)
         {   push @flat, $k => $v;
         }
     }
-    unshift @flat, %seen_set;
+    push @flat, %seen_set;
     unshift @s, $self->_simpleExpand(\@flat);
     wantarray ? @s : \@s;
 }
 
-#--------------------------
 
 sub deprecated($)
 {   my ($self, $msg) = @_;
@@ -311,12 +356,14 @@ sub deprecated($)
     warning __x"deprecated solr {message}", message => $msg;
 }
 
+
 sub ignored($)
 {   my ($self, $msg) = @_;
     return if $self->{AS_ign_msg}{$msg}++;  # report only once
     warning __x"ignored solr {message}", message => $msg;
 }
 
+#------------------------
 
 sub endpoint($@)
 {   my ($self, $action, %args) = @_;

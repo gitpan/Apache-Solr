@@ -22,6 +22,7 @@ Apache::Solr - Apache Solr (Lucene) extension
   # based on Log::Report, hence
   use Log::Report;
   dispatcher SYSLOG => 'default';  # now all warnings/error to syslog
+  try { $solr->select(...) }; print $@->wasFatal;
 
 =head1 DESCRIPTION
 
@@ -40,17 +41,12 @@ by sending bugs and suggesting improvements.
 
 =item Apache::Solr-E<gt>B<new>(OPTIONS)
 
-=required server URL
-
-The locations of the Solr server depends on the way the java environment
-is set-up.   The URL is either an URI object or a string which can be
-instantiated as such.
-
  -Option        --Default
   agent           <created internally>
   autocommit      true
   core            undef
   format          'XML'
+  server          <required>
   server_version  <latest>
 
 =over 2
@@ -61,7 +57,7 @@ Agent which implements the communication between this client and the
 Solr server.  When you have multiple C<Apache::Solr> objects in your
 program, you may want to share this agent, to share the connection.
 
-Do not forget to install LWP::protocol::https if you need to connect
+Do not forget to install LWP::Protocol::https if you need to connect
 via https.
 
 =item autocommit => BOOLEAN
@@ -80,6 +76,12 @@ environment.
 
 Communication format between client and server.  You may also instantiate
 one of the extensions directly.
+
+=item server => URL
+
+The locations of the Solr server depends on the way the java environment
+is set-up.   The URL is either an URI object or a string which can be
+instantiated as such.
 
 =item server_version => VERSION
 
@@ -124,12 +126,34 @@ latest).  Treat this version as string, to avoid rounding errors.
 
 =over 4
 
+=item $obj-E<gt>B<queryTerms>(TERMS)
+
+Search for often used terms. See F<http://wiki.apache.org/solr/TermsComponent>
+
+TERMS are passed to L<expandTerms()|Apache::Solr/"Parameter pre-processing"> before being used.
+
+B<Be warned:> The result is not sorted when XML communication is used,
+even when you explicitly request it.
+
+example: 
+
+  my $r = $self->queryTerms(fl => 'subject', limit => 100);
+  if($r->success)
+  {   foreach my $hit ($r->terms('subject'))
+      {   my ($term, $count) = @$hit;
+          print "term=$term, count=$count\n";
+      }
+  }
+
+  if(my $r = $self->queryTerms(fl => 'subject', limit => 100))
+     ...
+
 =item $obj-E<gt>B<select>(PARAMETERS)
 
 Find information in the document collection.
 
 This method has a HUGE number of parameters.  These values are passed in
-the uri of the http query to the solr server.  See L<expandSelect()|Apache::Solr/"Parameters"> for
+the uri of the http query to the solr server.  See L<expandSelect()|Apache::Solr/"Parameter pre-processing"> for
 all the simplifications offered here.  Sets of there parameters
 may need configuration help in the server as well.
 
@@ -241,6 +265,39 @@ the documents to be removed.
 
 =back
 
+=item $obj-E<gt>B<extractDocument>(OPTIONS)
+
+Call the Solr Tika built-in to have the server translate various
+kinds of structured documents into Solr searchable documents.  This
+component is also called "Solr Cell".
+
+The OPTIONS are mostly passed on as attributes to the server call,
+but there are a few more.  You need to pass either a C<file> or
+C<string> with data.
+
+See F<http://wiki.apache.org/solr/ExtractingRequestHandler>
+
+ -Option--Default
+  file    undef
+  string  undef
+
+=over 2
+
+=item file => FILENAME|FILEHANDLE
+
+Either C<file> or C<string> must be used.
+
+=item string => STRING|SCALAR
+
+The string can either be 
+
+=back
+
+example: 
+
+   my $r = $solr->extractDocument(file => '/etc/host'
+     , literal_id => 'host');
+
 =item $obj-E<gt>B<optimize>(OPTIONS)
 
  -Option      --Default
@@ -273,35 +330,9 @@ the documents to be removed.
 
 =back
 
-=head2 Queries
+=head2 Helpers
 
-=over 4
-
-=item $obj-E<gt>B<queryTerms>(TERMS)
-
-Search for often used terms. See F<http://wiki.apache.org/solr/TermsComponent>
-
-TERMS are passed to L<expandTerms()|Apache::Solr/"Parameters"> before being used.
-
-B<Be warned:> The result is not sorted when XML communication is used,
-even when you explicitly request it.
-
-example: 
-
-  my $r = $self->queryTerms(fl => 'subject', limit => 100);
-  if($r->success)
-  {   foreach my $hit ($r->terms('subject'))
-      {   my ($term, $count) = @$hit;
-          print "term=$term, count=$count\n";
-      }
-  }
-
-  if(my $r = $self->queryTerms(fl => 'subject', limit => 100))
-     ...
-
-=back
-
-=head2 Parameters
+=head3 Parameter pre-processing
 
 Many parameters are passed to the server.  The syntax of the communication
 protocol is not optimal for the end-user: it is too verbose and depends on
@@ -311,9 +342,9 @@ General rules:
 
 =over 4
 
-=item * you can leave-out the prefix
+=item * you can group them on prefix
 
-=item * use underscore as alternative to replace dots: less quoting needed
+=item * use underscore as alternative to dots: less quoting needed
 
 =item * boolean values in Perl will get translated into 'true' and 'false'
 
@@ -323,19 +354,31 @@ General rules:
 
 =over 4
 
+=item $obj-E<gt>B<deprecated>(MESSAGE)
+
+Produce a warning MESSAGE about deprecated parameters with the
+indicated server version.
+
+=item $obj-E<gt>B<expandExtract>(PAIRS|ARRAY)
+
+Used by L<extractDocument()|Apache::Solr/"Updates">.
+
 =item $obj-E<gt>B<expandSelect>(PAIRS)
+
+The L<select()|Apache::Solr/"Search"> method accepts many, many parameters.  These are passed
+to modules in the server, which need configuration before being usable.
 
 =over 4
 
-=item * facet F<http://wiki.apache.org/solr/SimpleFacetParameters>
+=item * facet -> F<http://wiki.apache.org/solr/SimpleFacetParameters>
 
-=item * hl (highlight) F<http://wiki.apache.org/solr/HighlightingParameters>
+=item * hl (highlight) -> F<http://wiki.apache.org/solr/HighlightingParameters>
 
-=item * mtl F<http://wiki.apache.org/solr/MoreLikeThis>
+=item * mtl -> F<http://wiki.apache.org/solr/MoreLikeThis>
 
-=item * stats F<http://wiki.apache.org/solr/StatsComponent>
+=item * stats -> F<http://wiki.apache.org/solr/StatsComponent>
 
-=item * group F<http://wiki.apache.org/solr/FieldCollapsing>
+=item * group -> F<http://wiki.apache.org/solr/FieldCollapsing>
 
 =back
 
@@ -362,6 +405,8 @@ example:
 
 =item $obj-E<gt>B<expandTerms>(PAIRS|ARRAY)
 
+Used by L<queryTerms()|Apache::Solr/"Search"> only.
+
 example: 
 
   my @t = $solr->expandTerms('terms.lower.incl' => 'true');
@@ -369,13 +414,16 @@ example:
 
   my $r = $self->queryTerms(fl => 'subject', limit => 100);
 
+=item $obj-E<gt>B<ignored>(MESSAGE)
+
+Produce a warning MESSAGE about parameters which will get ignored
+because they were not yet supported by the indicated server version.
+
 =back
 
-=head2 Helpers
+=head3 Other helpers
 
 =over 4
-
-=item $obj-E<gt>B<deprecated>(MESSAGE)
 
 =item $obj-E<gt>B<endpoint>(ACTION, OPTIONS)
 
@@ -397,8 +445,6 @@ The order of the parameters will be preserved when an ARRAY or parameters
 is passed; you never know for a HASH.
 
 =back
-
-=item $obj-E<gt>B<ignored>(MESSAGE)
 
 =back
 
@@ -427,14 +473,16 @@ differences is that C<Apache::Solr> has much more abstraction.
 
 =item * both-way XML or both-way JSON, not requests in XML and answers in JSON
 
-=item * access to plugings like terms
+=item * access to plugings like terms and tika
+
+=item * no Moose
 
 =back
 
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.90,
-built on December 03, 2012. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 0.91,
+built on December 04, 2012. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 

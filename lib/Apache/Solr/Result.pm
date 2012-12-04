@@ -4,7 +4,7 @@
 # Pod stripped from pm file by OODoc 2.00.
 package Apache::Solr::Result;
 use vars '$VERSION';
-$VERSION = '0.90';
+$VERSION = '0.91';
 
 
 use warnings;
@@ -13,6 +13,12 @@ use strict;
 use Log::Report    qw(solr);
 use Time::HiRes    qw(time);
 use Scalar::Util   qw(weaken);
+
+use Apache::Solr::Document ();
+
+use Data::Dumper;
+$Data::Dumper::Indent    = 1;
+$Data::Dumper::Quotekeys = 0;
 
 
 use overload
@@ -115,30 +121,38 @@ sub nrSelected()
 
 
 sub selected($;$)
-{   my ($self, $index, $client) = @_;
+{   my ($self, $rank, $client) = @_;
     my $dec    = $self->decoded;
+#warn Dumper $dec;
     my $result = $dec->{result}
         or panic "there are no results (yet)";
 
     # in this page?
-    if($index <= $result->{start})
+    if($rank <= $result->{start})
     {   my $docs = $result->{doc};
         $docs    = [$docs] if ref $docs eq 'HASH';
-        if($index - $result->{start} < @$docs)
-        {   my $doc = $docs->[$index - $result->{start}];
-            my $id  = $doc->{id};
-            my $hl  = $dec->{highlighting}{$id};
-            return +{id => $id, doc => $doc, hl => $hl};
+        if($rank - $result->{start} < @$docs)
+        {   my $doc = $docs->[$rank - $result->{start}];
+            return Apache::Solr::Document->fromResult($doc, $rank);
         }
     }
 
-    $index < $result->{numFound}       # outside answer range
+    $rank < $result->{numFound}       # outside answer range
         or return ();
  
-    my $pagenr  = $self->selectedPageNr($index);
+    my $pagenr  = $self->selectedPageNr($rank);
     my $page    = $self->selectedPage($pagenr)
                || $self->selectedPageLoad($pagenr, $client);
-    $page->selected($index);
+    $page->selected($rank);
+}
+
+
+sub highlighted($)
+{   my ($self, $doc) = @_;
+    my $rank = $doc->rank;
+    my $hl   = $self->selectedPage($rank)->decoded->{highlighting}
+        or error __x"there is no highlighting information in the result";
+    Apache::Solr::Document->fromResult($hl->{$doc->uniqueId}, $rank);
 }
 
 #--------------------------

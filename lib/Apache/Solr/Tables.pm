@@ -4,13 +4,14 @@
 # Pod stripped from pm file by OODoc 2.00.
 package Apache::Solr::Tables;
 use vars '$VERSION';
-$VERSION = '0.90';
+$VERSION = '0.91';
 
 use base 'Exporter';
 
 our @EXPORT = qw/%boolparams %introduced %deprecated/;
 
 our %boolparams = map +($_ => 1), qw/
+commit
 echoHandler
 facet
 facet.date.hardend
@@ -29,10 +30,15 @@ hl.useFastVectorHighlighter
 indent
 mlt
 omitHeader
+overwrite
 stats
 terms.lower.incl
 terms.raw
 terms.upper.incl
+extractOnly
+captureAttr
+lowernames
+literalsOverride
 
  /;
 
@@ -70,6 +76,9 @@ pageScore		4.0
 qs			1.3
 terms.regex		3.2
 timeAllowed		1.3
+literalsOverride	4.0
+resourse.password	4.0
+passwordsFile		4.0
 /;
 
 our %deprecated = qw/

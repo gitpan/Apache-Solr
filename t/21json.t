@@ -81,16 +81,20 @@ cmp_ok($t2->nrSelected, '==', 1);
 
 my $d2 = $t2->selected(0);
 #warn Dumper $d2;
-isa_ok($d2, 'HASH', 'got 1 answer');
-ok($d2->{doc}, 'got 1 document');
-ok($d2->{hl}, 'got 1 hightlights');
+isa_ok($d2, 'Apache::Solr::Document', 'got 1 answer');
+isa_ok($d2->field('subject'), 'HASH', 'subject');
+is($d2->field('subject')->{content}, '1 2 3');
+is($d2->content('subject'), '1 2 3');
+is($d2->_subject, '1 2 3');
+
+#ok($d2->{hl}, 'got 1 hightlights');
 
 ### test $solr->select with two results
 
 my $t3 = $solr->select(q => 'text:tac', rows => 1, hl => {fl => 'content'});
 #warn Dumper $t3->decoded;
-isa_ok($t3, 'Apache::Solr::Result');
 ok($t3, 'select was successfull');
+isa_ok($t3, 'Apache::Solr::Result');
 is($t3->endpoint, "$server/select?wt=$format&q=text%3Atac&rows=1&hl=true&hl.fl=content");
 
 cmp_ok($t3->nrSelected, '==', 2, '2 items selected');
@@ -100,17 +104,25 @@ cmp_ok($t3->selectedPageNr(0), '==', 0, 'item 0 on page 0');
 cmp_ok($t3->selectedPageNr(1), '==', 1, 'item 1 on page 1');
 
 my $d3a = $t3->selected(0);
+is($d3a->rank, 0, 'rank');
 #warn Dumper $d3a;
-isa_ok($d3a, 'HASH', 'got 1 answer');
-ok($d3a->{doc}, 'got 1 document');
-ok($d3a->{hl}, 'got 1 hightlights');
+isa_ok($d3a, 'Apache::Solr::Document', 'got 1 doc answer');
+my $h3a = $t3->highlighted($d3a);
+isa_ok($h3a, 'Apache::Solr::Document', 'got 1 hl answer');
+is($h3a->_content, '<body><em>tac</em> too', 'test hl content');
 
 my $d3b = $t3->selected(1, $solr);
-#warn Dumper $d3b;
-isa_ok($d3b, 'HASH', 'got 2 answer');
-ok($d3b->{doc}, 'got 2 document');
-ok($d3b->{hl}, 'got 2 hightlights');
+warn Dumper $d3b;
+isa_ok($d3b, 'Apache::Solr::Document', 'got 2 answer');
+warn "<<<a";
+is($d3b->uniqueId, 2, "id=2");
+warn "<<<b";
+is($d3b->rank, 1, 'rank');
 
-my $d3c =  $t3->selected(0);
-cmp_ok($d3a->{doc}, 'eq', $d3c->{doc}, "take again");
+exit 0;
 
+### upload document
+
+my $t4 = $solr->extractDocument( #overwrite => 1, commit => 1
+   extractOnly => 1, file => 't/a.pdf');
+warn Dumper $t4;

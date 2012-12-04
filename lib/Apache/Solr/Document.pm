@@ -4,7 +4,7 @@
 # Pod stripped from pm file by OODoc 2.00.
 package Apache::Solr::Document;
 use vars '$VERSION';
-$VERSION = '0.90';
+$VERSION = '0.91';
 
 
 use warnings;
@@ -25,23 +25,59 @@ sub init($)
     $self;
 }
 
+
+sub fromResult($$)
+{   my ($class, $data, $rank) = @_;
+    my (@f, %fh);
+    
+    while(my($k, $v) = each %$data)
+    {   my @v = map +{name => $k, content => $_}
+             , ref $v eq 'ARRAY' ? @$v : $v;
+        push @f, @v;
+        $fh{$k} = \@v;
+    }
+
+    my $self = $class->new;
+    $self->{ASD_rank}     = $rank;
+    $self->{ASD_fields}   = \@f;
+    $self->{ASD_fields_h} = \%fh;
+    $self;
+}
+
 #---------------
 
 sub boost() {shift->{ASD_boost}}
 sub fieldNames() { my %c; $c{$_->{name}}++ for shift->fields; sort keys %c }
 
 
+sub uniqueId() {shift->content($Apache::Solr::uniqueKey)}
+
+
+sub rank() {shift->{ASD_rank}}
+
+
 sub fields(;$)
-{   my $f    = shift->{ASD_fields};
+{   my $self = shift;
+    my $f    = $self->{ASD_fields};
     @_ or return @$f;
     my $name = shift;
-    grep $_->{name} eq $name, @$f;
+    my $fh   = $self->{ASD_fields_h}{$name};   # grouped by name
+    $fh ? @$fh : ();
 }
 
 
 sub field($)
-{   my ($f, $n) = (shift->{ASD_fields}, shift);
-    first $_->{name} eq $n, @$f;
+{   my $fh = $_[0]->{ASD_fields_h}{$_[1]};
+    $fh ? $fh->[0] : undef;
+}
+
+
+sub content($) { my $f = $_[0]->field($_[1]); $f ? $f->{content} : undef }
+
+our $AUTOLOAD;
+sub AUTOLOAD
+{   (my $fn = $AUTOLOAD) =~ s/.*\:\:_//;
+    shift->content($fn);
 }
 
 

@@ -4,7 +4,7 @@ use warnings;
 use strict;
 
 use lib 'lib';
-use Test::More tests => 5;
+use Test::More tests => 6;
 
 # The versions of the following packages are reported to help understanding
 # the environment in which the tests are run.  This is certainly not a
@@ -52,6 +52,7 @@ __WARN
     <STDIN>;
 }
 
+require_ok('Apache::Solr::Tables');
 require_ok('Apache::Solr');
 require_ok('Apache::Solr::Document');
 require_ok('Apache::Solr::Result');

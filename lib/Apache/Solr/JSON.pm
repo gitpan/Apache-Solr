@@ -4,7 +4,7 @@
 # Pod stripped from pm file by OODoc 2.00.
 package Apache::Solr::JSON;
 use vars '$VERSION';
-$VERSION = '0.90';
+$VERSION = '0.91';
 
 use base 'Apache::Solr';
 
@@ -24,7 +24,6 @@ sub init($)
     $self->SUPER::init($args);
 
     $self->{ASJ_json} = $args->{json} || JSON->new->utf8;
-
     $self;
 }
 

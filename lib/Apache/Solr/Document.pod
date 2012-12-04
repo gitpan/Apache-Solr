@@ -4,13 +4,42 @@ Apache::Solr::Document - Apache Solr (Lucene) Document container
 
 =head1 SYNOPSIS
 
+  # create and upload a new document
   my $doc = Apache::Solr::Document->new(...);
+  $solr->addDocument($doc, commit => 1, overwrite => 1)
+
+  # take first result
+  my $results = $solr->select
+    ( q  => 'text:gold'             # search text-fields for 'gold'
+    , hl => { field => 'content' }  # highlight 'gold' in content'
+    );
+
+  my $doc = $results->selected(3);  # fourth answer
+  print $doc->rank;         # 3
+  print $doc->field('subject')->{content};
+  print $doc->content('subject');   # same
+  print $doc->_subject;             # same, via autoload (mind the '_'!)
+
+  my $hl  = $results->highlighted($doc);  # another ::Doc object
+  print $hl->_content;              # highlighted content
+
+=head1 DESCRIPTION
+
+This object wraps-up an document: a set of fields.
+Either, this is a document which has to be added to the Solr database
+using L<Apache::Solr::addDocument()|Apache::Solr/"Updates">,
+or the subset of information as returned by L<Apache::Solr::select()|Apache::Solr/"Search">.
 
 =head1 METHODS
 
 =head2 Constructors
 
 =over 4
+
+=item Apache::Solr::Document-E<gt>B<fromResult>(HASH, RANK)
+
+Create a document object from data received as result of a select
+search.
 
 =item Apache::Solr::Document-E<gt>B<new>(OPTIONS)
 
@@ -60,6 +89,10 @@ The OPTIONS are passed L<addField()|Apache::Solr::Document/"Accessors"> as OPTIO
 
 Boost value for all fields in the document.
 
+=item $obj-E<gt>B<content>(NAME)
+
+Returns the content of the first field with NAME.
+
 =item $obj-E<gt>B<field>(NAME)
 
 Returns the first field with NAME (or undef).  This is a HASH.
@@ -74,14 +107,25 @@ Returns a list of HASHs, each containing at least a C<name> and a
 C<content>.  Each HASH will also contain a C<boost> value.  When a NAME
 is provided, only those fields are returned.
 
+=item $obj-E<gt>B<rank>()
+
+Only defined when the document contains results of a search: the ranking.
+A value of '0' means "best".
+
+=item $obj-E<gt>B<uniqueId>()
+
+Returns the value of the unique key associated with the document C<id>.  Only
+the server knowns which field is the unique one.  If it differs from the
+usual C<id>, you have to set it via global value C<$Apache::Solr::uniqueKey>
+
 =back
 
 =head2 Helpers
 
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.90,
-built on December 03, 2012. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 0.91,
+built on December 04, 2012. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 

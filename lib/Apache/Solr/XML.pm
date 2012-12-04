@@ -4,7 +4,7 @@
 # Pod stripped from pm file by OODoc 2.00.
 package Apache::Solr::XML;
 use vars '$VERSION';
-$VERSION = '0.90';
+$VERSION = '0.91';
 
 use base 'Apache::Solr';
 
@@ -15,7 +15,13 @@ use Log::Report          qw(solr);
 
 use Apache::Solr::Result ();
 use XML::LibXML::Simple  ();
+use HTTP::Message        ();
 use HTTP::Request        ();
+use Scalar::Util         qw(blessed);
+
+use Data::Dumper;
+$Data::Dumper::Indent    = 1;
+$Data::Dumper::Quotekeys = 0;
 
 # See the XML::LibXML::Simple manual page
 my @xml_decode_config =
@@ -48,6 +54,16 @@ sub _select($)
     my $result   = Apache::Solr::Result->new(params => \@params
       , endpoint => $endpoint);
     $self->request($endpoint, $result);
+    $result;
+}
+
+sub _extract($$)
+{   my ($self, $params, $data) = @_;
+    my @params   = (wt => 'xml', @$params);
+    my $endpoint = $self->endpoint('update/extract', params => \@params);
+    my $result   = Apache::Solr::Result->new(params => \@params
+      , endpoint => $endpoint);
+    $self->request($endpoint, $result, $data);
     $result;
 }
 
@@ -120,20 +136,34 @@ sub _terms($)
 #--------------------------
 
 sub request($$;$)
-{   my ($self, $url, $result, $xml) = @_;
+{   my ($self, $url, $result, $body) = @_;
 
     my $req;
-    if($xml)
-    {   # request with payload
+    if(!$body)
+    {   $req = HTTP::Request->new(GET => $url);
+    }
+    elsif(blessed $body && $body->isa('XML::LibXML::Document'))
+    {   # request with xml payload
         $req = HTTP::Request->new
           ( POST => $url
           , [ Content_Type => 'text/xml; charset=utf-8' ]
-          , $xml->toString
+          , $body->toString
           );
     }
-    else
-    {   $req = HTTP::Request->new(GET => $url);
+    elsif(ref $body eq 'SCALAR')
+    {   # request with 'form' payload
+        my $attach = HTTP::Message->new
+          ( [ Content_Disposition => qq{form-data; name="content"}
+            , Content_Type => 'application/pdf' ]
+          , $$body
+          );
+        $req       = HTTP::Request->new
+          ( POST => $url
+          , [ Content_Type => 'multipart/form-data' ]
+          );
+        $req->add_part($attach);
     }
+    else {panic}
 
 #warn $req->as_string;
     $result->request($req);
