@@ -4,7 +4,7 @@
 # Pod stripped from pm file by OODoc 2.00.
 package Apache::Solr;
 use vars '$VERSION';
-$VERSION = '0.91';
+$VERSION = '0.92';
 
 
 use warnings;
@@ -13,15 +13,18 @@ use strict;
 use Apache::Solr::Tables;
 use Log::Report    qw(solr);
 
-use URI            ();
 use Scalar::Util   qw(blessed);
-use LWP::UserAgent ();
 use Encode         qw(encode);
+
+use URI            ();
+use LWP::UserAgent ();
+use MIME::Types    ();
 
 use constant LATEST_SOLR_VERSION => '4.0';  # newest support by this module
 
 # overrule this when your host has a different unique field
 our $uniqueKey = 'id';
+my  $mimetypes = MIME::Types->new;
 
 sub _to_bool($)
 { $_[0] && $_[0] ne 'false' && $_[0] ne 'off' ? 'true' : 'false' }
@@ -32,8 +35,7 @@ sub new(@)
     if($class eq __PACKAGE__)
     {   my $format = delete $args{format} || 'XML';
         $format eq 'XML' || $format eq 'JSON'
-            or panic "unknown communication format {format} for solr"
-                 , format => $format;
+            or panic "unknown communication format '$format' for solr";
         $class .= '::' . $format;
         eval "require $class"; panic $@ if $@;
     }
@@ -194,13 +196,16 @@ sub delete(%)
     }
     @which or return;
 
-    if($self->serverVersion ge '1.4')
-    {   $self->_delete(\%attrs, \@which);
+    # JSON calls do not accept multiple ids at once (it seems in 4.0)
+    my $result;
+    if($self->serverVersion ge '1.4' && !$self->isa('Apache::Solr::JSON'))
+    {   $result = $self->_delete(\%attrs, \@which);
     }
     else
     {   # old servers accept only one id or query per delete
-        $self->_delete(\%attrs, [splice @which, 0, 2]) while @which;
+        $result = $self->_delete(\%attrs, [splice @which, 0, 2]) while @which;
     }
+    $result;
 }
 sub _delete(@) {panic "not implemented"}
 
@@ -218,8 +223,9 @@ sub extractDocument(@)
 {   my $self  = shift;
     my %p     = $self->expandExtract(@_);
     my $data;
-error __x"extractDocument() is work in progress: please upgrade";
+#error __x"extractDocument() is work in progress: please upgrade";
 
+    my $ct    = delete $p{content_type};
     if(my $fn = delete $p{file})
     {   local $/;
         if(ref $fn eq 'GLOB') { $data = <$fn> }
@@ -231,6 +237,7 @@ error __x"extractDocument() is work in progress: please upgrade";
             close IN
                 or fault __x"read error for document {fn}", fn => $fn;
             $p{'resource.name'} ||= $fn;
+            $ct ||= $mimetypes->mimeTypeOf($fn);
         }
     }
     elsif(defined $p{string})
@@ -243,7 +250,7 @@ error __x"extractDocument() is work in progress: please upgrade";
     {   error __x"extract requires document as file or string";
     }
 
-    $self->_extract([%p], \$data);
+    $self->_extract([%p], \$data, $ct);
 }
 sub _extract($){panic "not implemented"}
 
@@ -388,6 +395,37 @@ sub endpoint($@)
     $take;
 }
  
+sub request($$;$$)
+{   my ($self, $url, $result, $body, $body_ct) = @_;
+
+    my $req;
+    if(!$body)
+    {   # request without payload
+        $req = HTTP::Request->new(GET => $url);
+    }
+    else
+    {   # request with 'form' payload
+        $req       = HTTP::Request->new
+          ( POST => $url
+          , [ Content_Type        => $body_ct
+            , Contend_Disposition => 'form-data; name="content"'
+            ]
+          , (ref $body eq 'SCALAR' ? $$body : $body)
+          );
+    }
+
+#warn $req->as_string;
+    $result->request($req);
+
+    my $resp = $self->agent->request($req);
+    $result->response($resp);
+
+    $resp->is_success
+        or warning __x"error response from solr server: {err}"
+             , err => $resp->status_line;
+    $resp;
+}
+
 #----------------------------------
 
 1;

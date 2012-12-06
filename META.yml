@@ -24,9 +24,10 @@ requires:
   JSON: 0
   LWP::UserAgent: 0
   Log::Report: 0
+  MIME::Types: 0
   Scalar::Util: 0
   Test::More: 0
   Time::HiRes: 0
   URI: 0
   XML::LibXML::Simple: 0
-version: 0.91
+version: 0.92

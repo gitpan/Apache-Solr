@@ -10,14 +10,15 @@ Apache::Solr - Apache Solr (Lucene) extension
 
 =head1 SYNOPSIS
 
-  my $solr = Apache::Solr->new(...);
+  my $solr    = Apache::Solr->new(server => $url);
 
-  my $doc  = Apache::Solr::Document->new(...);
-  my $r = $solr->addDocument($doc);
-  $r or die;
+  my $doc     = Apache::Solr::Document->new(...);
+  my $results = $solr->addDocument($doc);
+  $results or die;
 
-  my $r = $solr->select(q => 'author:mark');
-  print $r->selected(0)->{doc}{author};
+  my $results = $solr->select(q => 'author:mark');
+  my $doc     = $results->selected(3);
+  print $doc->_author;
 
   # based on Log::Report, hence
   use Log::Report;
@@ -28,9 +29,9 @@ Apache::Solr - Apache Solr (Lucene) extension
 
 Solr is a stand-alone full-text search-engine, with loads of features.
 The main component is Lucene.  This module tries to provide a high
-level interface to access the data.
+level interface to the Solr server.
 
-B<BE WARNED>: this code is very new!  Please help me improve this code,
+B<BE WARNED>: this code is very new!  Please help me improve this code
 by sending bugs and suggesting improvements.
 
 =head1 METHODS
@@ -40,6 +41,9 @@ by sending bugs and suggesting improvements.
 =over 4
 
 =item Apache::Solr-E<gt>B<new>(OPTIONS)
+
+Create a client to connect to one "core" (collection) of the Solr
+server.
 
  -Option        --Default
   agent           <created internally>
@@ -66,16 +70,17 @@ Commit all changes immediately unless specified differently.
 
 =item core => NAME
 
-Sets the default core name for this client. When there is no core name
-specified, the core is selected by the server or already part of the URL.
+Set the core name to be addressed by this client. When there is no core
+name specified, the core is selected by the server or already part of
+the URL.
 
-You probably want a core dedicated for testing and one for the live
-environment.
+You probably want to set-up a core dedicated for testing and one for
+the live environment.
 
 =item format => 'XML'|'JSON'
 
 Communication format between client and server.  You may also instantiate
-one of the extensions directly.
+L<Apache::Solr::XML|Apache::Solr::XML> or L<Apache::Solr::JSON|Apache::Solr::JSON> directly.
 
 =item server => URL
 
@@ -85,7 +90,9 @@ instantiated as such.
 
 =item server_version => VERSION
 
-The latest version of the server software, currently 4.0.
+By default the latest version of the server software, currently 4.0.
+Try to get this setting right, because it will help you a lot in correct
+parameter use and support for the right features.
 
 =back
 
@@ -277,11 +284,14 @@ C<string> with data.
 
 See F<http://wiki.apache.org/solr/ExtractingRequestHandler>
 
- -Option--Default
-  file    undef
-  string  undef
+ -Option      --Default
+  content_type  <from> filename
+  file          undef
+  string        undef
 
 =over 2
+
+=item content_type => MIME
 
 =item file => FILENAME|FILEHANDLE
 
@@ -295,7 +305,7 @@ The string can either be
 
 example: 
 
-   my $r = $solr->extractDocument(file => '/etc/host'
+   my $r = $solr->extractDocument(file => 'design.pdf'
      , literal_id => 'host');
 
 =item $obj-E<gt>B<optimize>(OPTIONS)
@@ -368,6 +378,10 @@ Used by L<extractDocument()|Apache::Solr/"Updates">.
 The L<select()|Apache::Solr/"Search"> method accepts many, many parameters.  These are passed
 to modules in the server, which need configuration before being usable.
 
+Besides the common parameters, like 'q' (query) and 'rows', there
+are parameters for various (pluggable) backends, usually prefixed
+by the backend abbreviation.
+
 =over 4
 
 =item * facet -> F<http://wiki.apache.org/solr/SimpleFacetParameters>
@@ -382,6 +396,8 @@ to modules in the server, which need configuration before being usable.
 
 =back
 
+You may use WebService::Solr::Query to construct the query ('q').
+
 example: 
 
   my @r = $solr->expandSelect
@@ -389,7 +405,6 @@ example:
     , facet => {limit => -1, field => [qw/cat inStock/], mincount => 1}
     , f_cat_facet => {missing => 1}
     , hl    => {}
-    , f_cat_hl => {}
     , mlt   => { fl => 'manu,cat', mindf => 1, mintf => 1 }
     , stats => { field => [ 'price', 'popularity' ] }
     , group => { query => 'price:[0 TO 99.99]', limit => 3 }
@@ -469,7 +484,7 @@ differences is that C<Apache::Solr> has much more abstraction.
 
 =item * hidden paging of results
 
-=item * flexible logging framework
+=item * flexible logging framework (Log::Report)
 
 =item * both-way XML or both-way JSON, not requests in XML and answers in JSON
 
@@ -481,8 +496,8 @@ differences is that C<Apache::Solr> has much more abstraction.
 
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.91,
-built on December 04, 2012. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 0.92,
+built on December 06, 2012. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 
