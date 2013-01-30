@@ -1,10 +1,10 @@
-# Copyrights 2012 by [Mark Overmeer].
+# Copyrights 2012-2013 by [Mark Overmeer].
 #  For other contributors see ChangeLog.
 # See the manual pages for details on the licensing terms.
-# Pod stripped from pm file by OODoc 2.00.
+# Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr;
 use vars '$VERSION';
-$VERSION = '0.92';
+$VERSION = '0.93';
 
 
 use warnings;
@@ -26,8 +26,7 @@ use constant LATEST_SOLR_VERSION => '4.0';  # newest support by this module
 our $uniqueKey = 'id';
 my  $mimetypes = MIME::Types->new;
 
-sub _to_bool($)
-{ $_[0] && $_[0] ne 'false' && $_[0] ne 'off' ? 'true' : 'false' }
+sub _to_bool($) {$_[0] && $_[0] ne 'false' && $_[0] ne 'off' ? 'true' : 'false'}
 
 
 sub new(@)
@@ -223,10 +222,19 @@ sub extractDocument(@)
 {   my $self  = shift;
     my %p     = $self->expandExtract(@_);
     my $data;
-#error __x"extractDocument() is work in progress: please upgrade";
 
     my $ct    = delete $p{content_type};
-    if(my $fn = delete $p{file})
+    my $fn    = delete $p{file};
+    $p{'resource.name'} ||= $fn if $fn && !ref $fn;
+
+    if(defined $p{string})
+    {   # try to avoid copying the data, which can be huge
+        my $data = ref $p{string} eq 'SCALAR'
+                 ? encode(utf8 => ${$p{string}})
+                 : encode(utf8 => $p{string});
+        delete $p{string};
+    }
+    elsif($fn)
     {   local $/;
         if(ref $fn eq 'GLOB') { $data = <$fn> }
         else
@@ -236,15 +244,8 @@ sub extractDocument(@)
             $data = <IN>;
             close IN
                 or fault __x"read error for document {fn}", fn => $fn;
-            $p{'resource.name'} ||= $fn;
             $ct ||= $mimetypes->mimeTypeOf($fn);
         }
-    }
-    elsif(defined $p{string})
-    {   # try to avoid copying the data, which can be huge
-        my $data = ref $p{string} eq 'SCALAR'
-                 ? encode(utf8 => ${$p{string}})
-                 : encode(utf8 => $p{string});
     }
     else
     {   error __x"extract requires document as file or string";
@@ -303,8 +304,18 @@ sub expandTerms(@)
 
 sub expandExtract(@)
 {   my $self = shift;
-    my $p    = @_==1 ? shift : [@_];
-    my @t    = $self->_simpleExpand($p);
+    my @p = @_==1 ? @{(shift)} : @_;
+    my @s;
+    while(@p)
+    {   my ($k, $v) = (shift @p, shift @p);
+        if($k eq 'literal' || $k eq 'literals')
+        {   my @l = ref $v eq 'HASH' ? %$v : @$v;
+            while(@l) { push @s, 'literal.'.(shift @l) => shift @l }
+        }
+        else { push @s, $k => $v }
+    }
+
+    my @t = @s ? $self->_simpleExpand(\@s) : ();
     wantarray ? @t : \@t;
 }
 
@@ -419,10 +430,6 @@ sub request($$;$$)
 
     my $resp = $self->agent->request($req);
     $result->response($resp);
-
-    $resp->is_success
-        or warning __x"error response from solr server: {err}"
-             , err => $resp->status_line;
     $resp;
 }
 

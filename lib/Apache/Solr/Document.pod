@@ -8,27 +8,30 @@ Apache::Solr::Document - Apache Solr (Lucene) Document container
   my $doc = Apache::Solr::Document->new(...);
   $solr->addDocument($doc, commit => 1, overwrite => 1)
 
-  # take first result
+  # take results
   my $results = $solr->select
     ( q  => 'text:gold'             # search text-fields for 'gold'
     , hl => { field => 'content' }  # highlight 'gold' in content'
     );
 
   my $doc = $results->selected(3);  # fourth answer
-  print $doc->rank;         # 3
+  print $doc->rank;                 # 3
+
+  print $doc->uniqueId;             # usually the 'id' field
+
   print $doc->field('subject')->{content};
   print $doc->content('subject');   # same
   print $doc->_subject;             # same, via autoload (mind the '_'!)
 
   my $hl  = $results->highlighted($doc);  # another ::Doc object
-  print $hl->_content;              # highlighted content
+  print $hl->_content;              # highlighted field named 'content'
 
 =head1 DESCRIPTION
 
-This object wraps-up an document: a set of fields.
-Either, this is a document which has to be added to the Solr database
-using L<Apache::Solr::addDocument()|Apache::Solr/"Updates">,
-or the subset of information as returned by L<Apache::Solr::select()|Apache::Solr/"Search">.
+This object wraps-up an document: a set of fields.  Either, this
+is a document which has to be added to the Solr database using
+L<Apache::Solr::addDocument()|Apache::Solr/"Updates">, or the subset of a document as returned
+by L<Apache::Solr::select()|Apache::Solr/"Search">.
 
 =head1 METHODS
 
@@ -85,9 +88,13 @@ the field gets ignored.
 The HASH or ARRAY containing NAME/CONTENT pairs.
 The OPTIONS are passed L<addField()|Apache::Solr::Document/"Accessors"> as OPTIONS.
 
-=item $obj-E<gt>B<boost>()
+=item $obj-E<gt>B<boost>([FIELDNAME, [BOOST]])
 
 Boost value for all fields in the document.
+
+[0.93] When a FIELD NAME is given, the boost specific for that field is
+returned (not looking at the document's boost value)  This can also be
+used to set the BOOST value for the field.
 
 =item $obj-E<gt>B<content>(NAME)
 
@@ -95,7 +102,18 @@ Returns the content of the first field with NAME.
 
 =item $obj-E<gt>B<field>(NAME)
 
-Returns the first field with NAME (or undef).  This is a HASH.
+Returns the first field with NAME (or undef).  This is a HASH, containing
+C<name>, C<content> and sometimes a C<boost> key.
+
+If you need the content (that's the usually the case), you can also
+(probably more readible) use the (autoloaded) method NAMEd after the
+field with a leading '_'.
+
+example: 
+
+   $doc->field('subject')->{content};
+   $doc->content('subject);
+   $doc->_subject;
 
 =item $obj-E<gt>B<fieldNames>()
 
@@ -124,12 +142,12 @@ usual C<id>, you have to set it via global value C<$Apache::Solr::uniqueKey>
 
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.92,
-built on December 06, 2012. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 0.93,
+built on January 30, 2013. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 
-Copyrights 2012 by [Mark Overmeer]. For other contributors see ChangeLog.
+Copyrights 2012-2013 by [Mark Overmeer]. For other contributors see ChangeLog.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

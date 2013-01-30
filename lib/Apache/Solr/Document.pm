@@ -1,10 +1,10 @@
-# Copyrights 2012 by [Mark Overmeer].
+# Copyrights 2012-2013 by [Mark Overmeer].
 #  For other contributors see ChangeLog.
 # See the manual pages for details on the licensing terms.
-# Pod stripped from pm file by OODoc 2.00.
+# Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr::Document;
 use vars '$VERSION';
-$VERSION = '0.92';
+$VERSION = '0.93';
 
 
 use warnings;
@@ -17,8 +17,7 @@ sub new(@) { my $c = shift; (bless {}, $c)->init({@_}) }
 sub init($)
 {   my ($self, $args) = @_;
 
-    $self->{ASD_boost}    = $args->{boost} // 1.0;
-
+    $self->{ASD_boost}    = $args->{boost} || 1.0;
     $self->{ASD_fields}   = [];   # ordered
     $self->{ASD_fields_h} = {};   # grouped by name
     $self->addFields($args->{fields});
@@ -46,7 +45,13 @@ sub fromResult($$)
 
 #---------------
 
-sub boost() {shift->{ASD_boost}}
+sub boost(;$)
+{   my $self = shift;
+    @_ or return $self->{ASD_boost};
+    my $f = $self->field(shift) or return;
+    @_ ? $f->{boost} = shift : $f->{boost};
+}
+
 sub fieldNames() { my %c; $c{$_->{name}}++ for shift->fields; sort keys %c }
 
 

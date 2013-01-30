@@ -4,9 +4,24 @@ Apache::Solr::Result - Apache Solr (Lucene) result container
 
 =head1 SYNOPSIS
 
+  # All operations return a ::Result object
   my $result = $solr->select(...);
+
+  $result or die $result->solrError; # error reported by Solr
+  $result or die $result->errors;    # any error caught by this object
+
+  # Lots of trace information included
+  $result->showTimings;
+
+  # ::Document containing the requested fields from a select() search
+  my $doc1   = $result->selected(0);
+
+  # ::Document containing the highlight info from a selected document
+  my $hl1    = $result->highlighted($doc1);
+
+  # Some operations have helper methods
   my $result = $solr->queryTerm(...);
-  $result or die $result->error;  # $result is object but false
+  print Dumper $result->terms;
 
 =head1 METHODS
 
@@ -50,6 +65,12 @@ Number of seconds used to receive a decoded answer.
 
 The URI where the request is sent to.
 
+=item $obj-E<gt>B<errors>()
+
+All errors collected by this object into one string.
+
+=item $obj-E<gt>B<httpError>()
+
 =item $obj-E<gt>B<params>()
 
 List of (expanded) parameters used to call the solr server.
@@ -57,6 +78,8 @@ List of (expanded) parameters used to call the solr server.
 =item $obj-E<gt>B<request>([REQUEST])
 
 =item $obj-E<gt>B<response>([RESPONSE])
+
+=item $obj-E<gt>B<serverError>()
 
 =item $obj-E<gt>B<solrError>()
 
@@ -85,6 +108,8 @@ example:
 =back
 
 =head2 Response information
+
+=head3 in response to a select()
 
 =over 4
 
@@ -117,6 +142,12 @@ example:
 
    my $elf = $r->selected(11);         # error
    my $elf = $r->selected(11, $solr);  # auto-collects more
+
+=back
+
+=head3 in response to a queryTerms()
+
+=over 4
 
 =item $obj-E<gt>B<terms>(FIELD [, TERMS])
 
@@ -163,12 +194,12 @@ file-handle (probably STDOUT).
 
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.92,
-built on December 06, 2012. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 0.93,
+built on January 30, 2013. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 
-Copyrights 2012 by [Mark Overmeer]. For other contributors see ChangeLog.
+Copyrights 2012-2013 by [Mark Overmeer]. For other contributors see ChangeLog.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

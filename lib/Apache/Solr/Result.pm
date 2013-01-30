@@ -1,10 +1,10 @@
-# Copyrights 2012 by [Mark Overmeer].
+# Copyrights 2012-2013 by [Mark Overmeer].
 #  For other contributors see ChangeLog.
 # See the manual pages for details on the licensing terms.
-# Pod stripped from pm file by OODoc 2.00.
+# Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr::Result;
 use vars '$VERSION';
-$VERSION = '0.92';
+$VERSION = '0.93';
 
 
 use warnings;
@@ -25,6 +25,7 @@ use overload
     '""' => 'endpoint'
   , bool => 'success';
 
+#----------------------
 
 sub new(@) { my $c = shift; (bless {}, $c)->init({@_}) }
 sub init($)
@@ -95,22 +96,42 @@ sub solrQTime()
 sub solrError()
 {   my $dec  = shift->decoded or return;
     my $err  = $dec->{error};
-    $err ? $err->{msg} : undef;
+    $err ? $err->{msg} : ();
+}
+
+sub httpError()
+{   my $resp = shift->response or return;
+    $resp->status_line;
+}
+
+sub serverError()
+{   my $resp = shift->response or return;
+    $resp->code != 200 or return;
+    my $ct   = $resp->content_type;
+    $ct eq 'text/html' or return;
+    my $body = $resp->decoded_content || $resp->content;
+    $body =~ s!.*<body>!!;
+    $body =~ s!</body>.*!!;
+    $body =~ s!</h[0-6]>|</p>!\n!g;  # cheap reformatter
+    $body =~ s!</b>\s*!: !g;
+    $body =~ s!<[^>]*>!!gs;
+    $body;
+}
+
+
+sub errors()
+{   my $self = shift;
+    my @errors;
+    if(my $h = $self->httpError)   { push @errors, "HTTP error:",   "   $h" }
+    if(my $a = $self->serverError) 
+    {   $a =~ s/^/   /gm;
+        push @errors, "Server error:", $a;
+    }
+    if(my $s = $self->solrError)   { push @errors, "Solr error:",   "   $s" }
+    join "\n", @errors;
 }
 
 #--------------------------
-
-sub terms($;$)
-{   my ($self, $field) = (shift, shift);
-    return $self->{ASR_terms}{$field} = shift if @_;
-
-    my $r = $self->{ASR_terms}{$field}
-        or error __x"no search for terms on field {field} requested"
-            , field => $field;
-
-    $r;
-}
-
 
 sub nrSelected()
 {   my $results = shift->decoded->{result}
@@ -153,6 +174,19 @@ sub highlighted($)
     my $hl     = $self->selectedPage($pagenr)->decoded->{highlighting}
         or error __x"there is no highlighting information in the result";
     Apache::Solr::Document->fromResult($hl->{$doc->uniqueId}, $rank);
+}
+
+#--------------------------
+
+sub terms($;$)
+{   my ($self, $field) = (shift, shift);
+    return $self->{ASR_terms}{$field} = shift if @_;
+
+    my $r = $self->{ASR_terms}{$field}
+        or error __x"no search for terms on field {field} requested"
+            , field => $field;
+
+    $r;
 }
 
 #--------------------------

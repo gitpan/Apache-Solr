@@ -14,13 +14,13 @@ Apache::Solr - Apache Solr (Lucene) extension
 
   my $doc     = Apache::Solr::Document->new(...);
   my $results = $solr->addDocument($doc);
-  $results or die;
+  $results or die $results->solrError;
 
   my $results = $solr->select(q => 'author:mark');
   my $doc     = $results->selected(3);
   print $doc->_author;
 
-  # based on Log::Report, hence
+  # based on Log::Report, hence (for communication errors and such)
   use Log::Report;
   dispatcher SYSLOG => 'default';  # now all warnings/error to syslog
   try { $solr->select(...) }; print $@->wasFatal;
@@ -299,7 +299,8 @@ Either C<file> or C<string> must be used.
 
 =item string => STRING|SCALAR
 
-The string can either be 
+The document provided as normal text or a reference to raw text.  You may
+also specify the C<file> option with a filename.
 
 =back
 
@@ -372,6 +373,17 @@ indicated server version.
 =item $obj-E<gt>B<expandExtract>(PAIRS|ARRAY)
 
 Used by L<extractDocument()|Apache::Solr/"Updates">.
+
+[0.93] If the key is C<literal> or C<literals>, then the keys in the value
+HASH get 'literal.' prepended.  "Literal" are fields you add yourself to the
+SolrCEL output.
+
+example: 
+
+  my $result = $solr->extractDocument(string => $document
+     , resource_name => $fn, extractOnly => 1, boost.xyz => 1
+     , literals => { id => 5, b => 'tic' }, literal_xyz => 42);
+);
 
 =item $obj-E<gt>B<expandSelect>(PAIRS)
 
@@ -496,12 +508,12 @@ differences is that C<Apache::Solr> has much more abstraction.
 
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.92,
-built on December 06, 2012. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 0.93,
+built on January 30, 2013. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 
-Copyrights 2012 by [Mark Overmeer]. For other contributors see ChangeLog.
+Copyrights 2012-2013 by [Mark Overmeer]. For other contributors see ChangeLog.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
