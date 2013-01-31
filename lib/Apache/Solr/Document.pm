@@ -4,7 +4,7 @@
 # Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr::Document;
 use vars '$VERSION';
-$VERSION = '0.93';
+$VERSION = '0.94';
 
 
 use warnings;

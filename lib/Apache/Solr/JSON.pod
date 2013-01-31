@@ -144,6 +144,24 @@ See L<Apache::Solr/"Updates">
 
 =back
 
+=head3 Core management
+
+=over 4
+
+=item $obj-E<gt>B<coreReload>([CORE])
+
+See L<Apache::Solr/"Core management">
+
+=item $obj-E<gt>B<coreStatus>()
+
+See L<Apache::Solr/"Core management">
+
+=item $obj-E<gt>B<coreUnload>([OPTIONS])
+
+See L<Apache::Solr/"Core management">
+
+=back
+
 =head2 Helpers
 
 =over 4
@@ -194,8 +212,8 @@ See L<Apache::Solr/"Other helpers">
 
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.93,
-built on January 30, 2013. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 0.94,
+built on January 31, 2013. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 

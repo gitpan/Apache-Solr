@@ -58,8 +58,12 @@ server.
 =item agent => LWP::UserAgent object
 
 Agent which implements the communication between this client and the
-Solr server.  When you have multiple C<Apache::Solr> objects in your
-program, you may want to share this agent, to share the connection.
+Solr server.
+
+When you have multiple C<Apache::Solr> objects in your program, you may
+want to share this agent, to share the connection. Since [0.94], this
+will happen automagically: the parameter defaults to the agent created
+for the previous object.
 
 Do not forget to install LWP::Protocol::https if you need to connect
 via https.
@@ -285,11 +289,16 @@ C<string> with data.
 See F<http://wiki.apache.org/solr/ExtractingRequestHandler>
 
  -Option      --Default
+  commit        new(autocommit)
   content_type  <from> filename
   file          undef
   string        undef
 
 =over 2
+
+=item commit => BOOLEAN
+
+[0.94] commit the document to the database.
 
 =item content_type => MIME
 
@@ -341,6 +350,72 @@ example:
 
 =back
 
+=head3 Core management
+
+See F<http://lucidworks.lucidimagination.com/display/solr/Configuring+solr.xml>
+The CREATE, SWAP, ALIAS, and RENAME actions are not yet supported, because
+they are not very useful, it seems.
+
+=over 4
+
+=item $obj-E<gt>B<coreReload>([CORE])
+
+[0.94] Load a new core (on the server) from the configuration of this
+core. While the new core is initializing, the existing one will continue
+to handle requests. When the new Solr core is ready, it takes over and
+the old core is unloaded.
+
+ -Option--Default
+  core    <this core>
+
+=over 2
+
+=item core => NAME
+
+=back
+
+example: 
+
+  my $result = $solr->coreReload;
+  $result or die $result->errors;
+
+=item $obj-E<gt>B<coreStatus>()
+
+[0.94] Returns a HASH with information about this core.  There is no
+description about the exact structure and interpretation of this data.
+
+ -Option--Default
+  core    <this core>
+
+=over 2
+
+=item core => NAME
+
+=back
+
+example: 
+
+  my $result = $solr->coreStatus;
+  $result or die $result->errors;
+
+  use Data::Dumper;
+  print Dumper $result->decoded->{status};
+
+=item $obj-E<gt>B<coreUnload>([OPTIONS])
+
+Removes a core from Solr. Active requests will continue to be processed, but no new requests will be sent to the named core. If a core is registered under more than one name, only the given name is removed.
+
+ -Option--Default
+  core    <this core>
+
+=over 2
+
+=item core => NAME
+
+=back
+
+=back
+
 =head2 Helpers
 
 =head3 Parameter pre-processing
@@ -374,15 +449,21 @@ indicated server version.
 
 Used by L<extractDocument()|Apache::Solr/"Updates">.
 
-[0.93] If the key is C<literal> or C<literals>, then the keys in the value
-HASH get 'literal.' prepended.  "Literal" are fields you add yourself to the
-SolrCEL output.
+[0.93] If the key is C<literal> or C<literals>, then the keys in the
+value HASH (or ARRAY of PAIRS) get 'literal.' prepended.  "Literals"
+are fields you add yourself to the SolrCEL output.  Unless C<extractOnly>,
+you need to specify the 'id' literal.
+
+[0.94] You can also use C<fmap>, C<boost>, and C<resource> with an
+HASH (or ARRAY-of-PAIRS).
 
 example: 
 
   my $result = $solr->extractDocument(string => $document
-     , resource_name => $fn, extractOnly => 1, boost.xyz => 1
-     , literals => { id => 5, b => 'tic' }, literal_xyz => 42);
+     , resource_name => $fn, extractOnly => 1
+     , literals => { id => 5, b => 'tic' }, literal_xyz => 42
+     , fmap => { id => 'doc_id' }, fmap_subject => 'mysubject'
+     , boost => { abc => 3.5 }, boost_xyz => 2.0);
 );
 
 =item $obj-E<gt>B<expandSelect>(PAIRS)
@@ -508,8 +589,8 @@ differences is that C<Apache::Solr> has much more abstraction.
 
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.93,
-built on January 30, 2013. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 0.94,
+built on January 31, 2013. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 

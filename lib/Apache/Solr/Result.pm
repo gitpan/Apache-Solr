@@ -4,7 +4,7 @@
 # Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr::Result;
 use vars '$VERSION';
-$VERSION = '0.93';
+$VERSION = '0.94';
 
 
 use warnings;
@@ -95,8 +95,10 @@ sub solrQTime()
 
 sub solrError()
 {   my $dec  = shift->decoded or return;
-    my $err  = $dec->{error};
-    $err ? $err->{msg} : ();
+    my $err  = $dec->{error} || {};
+    my $msg  = $err->{msg}   || '';
+    $msg =~ s/\s*$//s;
+    length $msg ? $msg : ();
 }
 
 sub httpError()
@@ -128,7 +130,7 @@ sub errors()
         push @errors, "Server error:", $a;
     }
     if(my $s = $self->solrError)   { push @errors, "Solr error:",   "   $s" }
-    join "\n", @errors;
+    join "\n", @errors, '';
 }
 
 #--------------------------

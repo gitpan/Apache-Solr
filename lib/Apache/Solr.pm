@@ -4,7 +4,7 @@
 # Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr;
 use vars '$VERSION';
-$VERSION = '0.93';
+$VERSION = '0.94';
 
 
 use warnings;
@@ -13,8 +13,9 @@ use strict;
 use Apache::Solr::Tables;
 use Log::Report    qw(solr);
 
-use Scalar::Util   qw(blessed);
-use Encode         qw(encode);
+use Scalar::Util   qw/blessed/;
+use Encode         qw/encode/;
+use Scalar::Util   qw/weaken/;
 
 use URI            ();
 use LWP::UserAgent ();
@@ -23,8 +24,9 @@ use MIME::Types    ();
 use constant LATEST_SOLR_VERSION => '4.0';  # newest support by this module
 
 # overrule this when your host has a different unique field
-our $uniqueKey = 'id';
-my  $mimetypes = MIME::Types->new;
+our $uniqueKey  = 'id';
+my  $mimetypes  = MIME::Types->new;
+my  $http_agent;
 
 sub _to_bool($) {$_[0] && $_[0] ne 'false' && $_[0] ne 'off' ? 'true' : 'false'}
 
@@ -47,7 +49,11 @@ sub init($)
     $self->{AS_core}     = $args->{core};
     $self->{AS_commit}   = exists $args->{autocommit} ? $args->{autocommit} : 1;
     $self->{AS_sversion} = $args->{server_version} || LATEST_SOLR_VERSION;
-    $self->{AS_agent}    = $args->{agent} || LWP::UserAgent->new(keep_alive=>1);
+
+    $http_agent = $self->{AS_agent} = $args->{agent} ||
+       $http_agent || LWP::UserAgent->new(keep_alive=>1);
+    weaken $http_agent;
+
     $self;
 }
 
@@ -220,6 +226,10 @@ sub rollback()
 
 sub extractDocument(@)
 {   my $self  = shift;
+
+    $self->serverVersion ge '1.4'
+        or error __x"extractDocument() requires Solr v1.4 or higher";
+        
     my %p     = $self->expandExtract(@_);
     my $data;
 
@@ -227,11 +237,14 @@ sub extractDocument(@)
     my $fn    = delete $p{file};
     $p{'resource.name'} ||= $fn if $fn && !ref $fn;
 
+    $p{commit}  = _to_bool $self->autocommit
+        unless exists $p{commit};
+
     if(defined $p{string})
     {   # try to avoid copying the data, which can be huge
-        my $data = ref $p{string} eq 'SCALAR'
-                 ? encode(utf8 => ${$p{string}})
-                 : encode(utf8 => $p{string});
+        $data = ref $p{string} eq 'SCALAR'
+              ? encode(utf8 => ${$p{string}})
+              : encode(utf8 => $p{string});
         delete $p{string};
     }
     elsif($fn)
@@ -254,6 +267,41 @@ sub extractDocument(@)
     $self->_extract([%p], \$data, $ct);
 }
 sub _extract($){panic "not implemented"}
+
+#-------------------------
+
+sub _core_admin($@)
+{   my ($self, $action, $params) = @_;
+    $params->{core} ||= $self->core;
+    
+    my $endpoint = $self->endpoint('cores', core => 'admin'
+      , params => $params);
+
+    my @params   = %$params;
+    my $result   = Apache::Solr::Result->new(params => [ %$params ]
+      , endpoint => $endpoint);
+
+    $self->request($endpoint, $result);
+    $result;
+}
+
+
+sub coreStatus(%)
+{   my ($self, %args) = @_;
+    $self->_core_admin('STATUS', \%args);
+}
+
+
+sub coreReload(%)
+{   my ($self, %args) = @_;
+    $self->_core_admin('RELOAD', \%args);
+}
+
+
+sub coreUnload($%)
+{   my ($self, %args) = @_;
+    $self->_core_admin('UNLOAD', \%args);
+}
 
 #--------------------------
 
@@ -302,17 +350,27 @@ sub expandTerms(@)
 }
 
 
+sub _expand_flatten($$)
+{   my ($self, $v, $prefix) = @_;
+    my @l = ref $v eq 'HASH' ? %$v : @$v;
+    my @s;
+    push @s, $prefix.(shift @l) => (shift @l) while @l;
+    @s;
+}
+
 sub expandExtract(@)
 {   my $self = shift;
     my @p = @_==1 ? @{(shift)} : @_;
     my @s;
     while(@p)
     {   my ($k, $v) = (shift @p, shift @p);
-        if($k eq 'literal' || $k eq 'literals')
-        {   my @l = ref $v eq 'HASH' ? %$v : @$v;
-            while(@l) { push @s, 'literal.'.(shift @l) => shift @l }
-        }
-        else { push @s, $k => $v }
+        if(!ref $v)
+             { push @s, $k => $v }
+        elsif($k eq 'literal' || $k eq 'literals')
+             { push @s, $self->_expand_flatten($v, 'literal.') }
+        elsif($k eq 'fmap' || $k eq 'boost' || $k eq 'resource')
+             { push @s, $self->_expand_flatten($v, "$k.") }
+        else { panic "unknown set '$k'" }
     }
 
     my @t = @s ? $self->_simpleExpand(\@s) : ();
