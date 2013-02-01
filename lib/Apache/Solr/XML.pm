@@ -4,7 +4,7 @@
 # Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr::XML;
 use vars '$VERSION';
-$VERSION = '0.94';
+$VERSION = '0.95';
 
 use base 'Apache::Solr';
 
@@ -58,7 +58,7 @@ sub _select($)
 
     my $endpoint = $self->endpoint('select', params => \@params);
     my $result   = Apache::Solr::Result->new(params => \@params
-      , endpoint => $endpoint);
+      , endpoint => $endpoint, core => $self);
     $self->request($endpoint, $result);
     $result;
 }
@@ -68,7 +68,7 @@ sub _extract($$$)
     my @params   = (wt => 'xml', @$params);
     my $endpoint = $self->endpoint('update/extract', params => \@params);
     my $result   = Apache::Solr::Result->new(params => \@params
-      , endpoint => $endpoint);
+      , endpoint => $endpoint, core => $self);
     $self->request($endpoint, $result, $data, $ct);
     $result;
 }
@@ -90,7 +90,7 @@ sub _add($$$)
     my @params   = (wt => 'xml', %$params);
     my $endpoint = $self->endpoint('update', params => \@params);
     my $result   = Apache::Solr::Result->new(params => \@params
-      , endpoint => $endpoint);
+      , endpoint => $endpoint, core => $self);
     $self->request($endpoint, $result, $doc);
     $result;
 }
@@ -124,7 +124,7 @@ sub _terms($)
     my @params   = (wt => 'xml', @$terms);
     my $endpoint = $self->endpoint('terms', params => \@params);
     my $result   = Apache::Solr::Result->new(params => \@params
-      , endpoint => $endpoint);
+      , endpoint => $endpoint, core => $self);
 
     $self->request($endpoint, $result);
 
@@ -216,7 +216,7 @@ sub simpleUpdate($$;$)
     my @params   = (wt => 'xml', commit => delete $attrs->{commit});
     my $endpoint = $self->endpoint('update', params => \@params);
     my $result   = Apache::Solr::Result->new(params => \@params
-      , endpoint => $endpoint);
+      , endpoint => $endpoint, core => $self);
 
     my $doc      = $self->simpleDocument($command, $attrs, $content);
     $self->request($endpoint, $result, $doc);

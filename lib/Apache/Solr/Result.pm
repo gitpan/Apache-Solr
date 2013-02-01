@@ -4,7 +4,7 @@
 # Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr::Result;
 use vars '$VERSION';
-$VERSION = '0.94';
+$VERSION = '0.95';
 
 
 use warnings;
@@ -37,8 +37,12 @@ sub init($)
     $self->request($args->{request});
     $self->response($args->{response});
 
-    $self->{ASR_pages} = [$self];
+    $self->{ASR_pages}    = [$self];
     weaken $self->{ASR_pages}[0];            # no reference loop!
+
+    if($self->{ASR_core} = $args->{core}) { weaken $self->{ASR_core} }
+    $self->{ASR_next}    = 0;
+
     $self;
 }
 
@@ -50,6 +54,7 @@ sub _pageset($) { $_[0]->{ASR_pages} = $_[1] }
 sub start()    {shift->{ASR_start}}
 sub endpoint() {shift->{ASR_endpoint}}
 sub params()   {@{shift->{ASR_params}}}
+sub core()     {shift->{ASR_core}}
 
 sub request(;$) 
 {   my $self = shift;
@@ -145,16 +150,17 @@ sub nrSelected()
 
 sub selected($;$)
 {   my ($self, $rank, $client) = @_;
-    my $dec    = $self->decoded;
-    my $result = $dec->{result}
-        or panic "there are no results (yet)";
+    my $dec      = $self->decoded;
+    my $result   = $dec->{result}
+        or panic __x"there are no results in the answer";
 
     # in this page?
-    if($rank <= $result->{start})
+    my $startnr  = $result->{start};
+    if($rank >= $startnr)
     {   my $docs = $result->{doc};
-        $docs    = [$docs] if ref $docs eq 'HASH';
-        if($rank - $result->{start} < @$docs)
-        {   my $doc = $docs->[$rank - $result->{start}];
+        $docs    = [$docs] if ref $docs eq 'HASH'; # when only one result
+        if($rank - $startnr < @$docs)
+        {   my $doc = $docs->[$rank - $startnr];
             return Apache::Solr::Document->fromResult($doc, $rank);
         }
     }
@@ -164,8 +170,15 @@ sub selected($;$)
  
     my $pagenr  = $self->selectedPageNr($rank);
     my $page    = $self->selectedPage($pagenr)
-               || $self->selectedPageLoad($pagenr, $client);
+               || $self->selectedPageLoad($pagenr, $self->core);
     $page->selected($rank);
+}
+
+
+sub nextSelected()
+{   my $self = shift;
+    my $nr   = $self->{ASR_next}++;
+    $self->selected($nr);
 }
 
 

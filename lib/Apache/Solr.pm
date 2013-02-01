@@ -4,7 +4,7 @@
 # Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr;
 use vars '$VERSION';
-$VERSION = '0.94';
+$VERSION = '0.95';
 
 
 use warnings;
@@ -279,7 +279,7 @@ sub _core_admin($@)
 
     my @params   = %$params;
     my $result   = Apache::Solr::Result->new(params => [ %$params ]
-      , endpoint => $endpoint);
+      , endpoint => $endpoint, core => $self);
 
     $self->request($endpoint, $result);
     $result;

@@ -197,8 +197,8 @@ See L<Apache::Solr/"Other helpers">
 
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.94,
-built on January 31, 2013. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 0.95,
+built on February 01, 2013. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 
