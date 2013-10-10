@@ -1,3 +1,5 @@
+=encoding utf8
+
 =head1 NAME
 
 Apache::Solr::JSON - Apache Solr (Lucene) client via JSON
@@ -29,10 +31,16 @@ In some cases, XML and JSON differ in structure and names in the structure.
 In those cases, the XML plan is made leading: the JSON data is transformed
 to match the XML.
 
+See L<documentation in the base class|Apache::Solr/"DESCRIPTION">.
+ 
 =head1 METHODS
 
+See L<documentation in the base class|Apache::Solr/"METHODS">.
+ 
 =head2 Constructors
 
+See L<documentation in the base class|Apache::Solr/"Constructors">.
+ 
 =over 4
 
 =item Apache::Solr::JSON-E<gt>B<new>(OPTIONS)
@@ -70,6 +78,8 @@ By default, an JSON object is created for you, in utf8 mode.
 
 =head2 Accessors
 
+See L<documentation in the base class|Apache::Solr/"Accessors">.
+ 
 =over 4
 
 =item $obj-E<gt>B<agent>()
@@ -100,70 +110,12 @@ See L<Apache::Solr/"Accessors">
 
 See F<http://wiki.apache.org/solr/UpdateJSON>
 
-=head3 Search
-
-=over 4
-
-=item $obj-E<gt>B<queryTerms>(TERMS)
-
-See L<Apache::Solr/"Search">
-
-=item $obj-E<gt>B<select>(PARAMETERS)
-
-See L<Apache::Solr/"Search">
-
-=back
-
-=head3 Updates
-
-=over 4
-
-=item $obj-E<gt>B<addDocument>(DOC|ARRAY, OPTIONS)
-
-See L<Apache::Solr/"Updates">
-
-=item $obj-E<gt>B<commit>(OPTIONS)
-
-See L<Apache::Solr/"Updates">
-
-=item $obj-E<gt>B<delete>(OPTIONS)
-
-See L<Apache::Solr/"Updates">
-
-=item $obj-E<gt>B<extractDocument>(OPTIONS)
-
-See L<Apache::Solr/"Updates">
-
-=item $obj-E<gt>B<optimize>(OPTIONS)
-
-See L<Apache::Solr/"Updates">
-
-=item $obj-E<gt>B<rollback>()
-
-See L<Apache::Solr/"Updates">
-
-=back
-
-=head3 Core management
-
-=over 4
-
-=item $obj-E<gt>B<coreReload>([CORE])
-
-See L<Apache::Solr/"Core management">
-
-=item $obj-E<gt>B<coreStatus>()
-
-See L<Apache::Solr/"Core management">
-
-=item $obj-E<gt>B<coreUnload>([OPTIONS])
-
-See L<Apache::Solr/"Core management">
-
-=back
-
+See L<documentation in the base class|Apache::Solr/"Commands">.
+ 
 =head2 Helpers
 
+See L<documentation in the base class|Apache::Solr/"Helpers">.
+ 
 =over 4
 
 =item $obj-E<gt>B<simpleDocument>(COMMAND, [ATTRIBUTES, [CONTENT]])
@@ -174,46 +126,14 @@ Construct a simple XML structure.
 
 =back
 
-=head3 Parameter pre-processing
+=head1 DETAILS
 
-=over 4
-
-=item $obj-E<gt>B<deprecated>(MESSAGE)
-
-See L<Apache::Solr/"Parameter pre-processing">
-
-=item $obj-E<gt>B<expandExtract>(PAIRS|ARRAY)
-
-See L<Apache::Solr/"Parameter pre-processing">
-
-=item $obj-E<gt>B<expandSelect>(PAIRS)
-
-See L<Apache::Solr/"Parameter pre-processing">
-
-=item $obj-E<gt>B<expandTerms>(PAIRS|ARRAY)
-
-See L<Apache::Solr/"Parameter pre-processing">
-
-=item $obj-E<gt>B<ignored>(MESSAGE)
-
-See L<Apache::Solr/"Parameter pre-processing">
-
-=back
-
-=head3 Other helpers
-
-=over 4
-
-=item $obj-E<gt>B<endpoint>(ACTION, OPTIONS)
-
-See L<Apache::Solr/"Other helpers">
-
-=back
-
+See L<documentation in the base class|Apache::Solr/"DETAILS">.
+ 
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.95,
-built on February 01, 2013. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 0.96,
+built on October 10, 2013. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 

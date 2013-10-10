@@ -1,3 +1,5 @@
+=encoding utf8
+
 =head1 NAME
 
 Apache::Solr::Result - Apache Solr (Lucene) result container
@@ -22,6 +24,8 @@ Apache::Solr::Result - Apache Solr (Lucene) result container
   # Some operations have helper methods
   my $result = $solr->queryTerm(...);
   print Dumper $result->terms;
+
+=head1 DESCRIPTION
 
 =head1 METHODS
 
@@ -222,8 +226,8 @@ file-handle (probably STDOUT).
 
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.95,
-built on February 01, 2013. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 0.96,
+built on October 10, 2013. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 

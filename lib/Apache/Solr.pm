@@ -4,7 +4,7 @@
 # Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr;
 use vars '$VERSION';
-$VERSION = '0.95';
+$VERSION = '0.96';
 
 
 use warnings;
@@ -21,7 +21,7 @@ use URI            ();
 use LWP::UserAgent ();
 use MIME::Types    ();
 
-use constant LATEST_SOLR_VERSION => '4.0';  # newest support by this module
+use constant LATEST_SOLR_VERSION => '4.5';  # newest support by this module
 
 # overrule this when your host has a different unique field
 our $uniqueKey  = 'id';
@@ -111,7 +111,8 @@ sub addDocument($%)
 
     foreach my $depr (qw/allowDups overwritePending overwriteCommitted/)
     {   if(exists $args{$depr})
-        {   if($sv ge '1.0') { $self->deprecated("add($depr)") }
+        {      if($sv ge '4.0') { $self->removed("add($depr)"); delete $args{$depr} }
+            elsif($sv ge '1.0') { $self->deprecated("add($depr)") }
             else { $attrs{$depr} = _to_bool delete $args{$depr} }
         }
     }
@@ -126,7 +127,9 @@ sub commit(%)
 
     my %attrs;
     if(exists $args{waitFlush})
-    {   if($sv ge '1.4') { $self->deprecated("commit(waitFlush)") }
+    {      if($sv ge '4.0')
+             { $self->removed("commit(waitFlush)"); delete $args{waitFlush} }
+        elsif($sv ge '1.4') { $self->deprecated("commit(waitFlush)") }
         else { $attrs{waitFlush} = _to_bool delete $args{waitFlush} }
     }
 
@@ -154,7 +157,9 @@ sub optimize(%)
 
     my %attrs;
     if(exists $args{waitFlush})
-    {   if($sv ge '1.4') { $self->deprecated("optimize(waitFlush)") }
+    {      if($sv ge '4.0')
+             { $self->removed("commit(waitFlush)"); delete $args{waitFlush} }
+        elsif($sv ge '1.4') { $self->deprecated("optimize(waitFlush)") }
         else { $attrs{waitFlush} = _to_bool delete $args{waitFlush} }
     }
 
@@ -438,6 +443,14 @@ sub ignored($)
     return if $self->{AS_ign_msg}{$msg}++;  # report only once
     warning __x"ignored solr {message}", message => $msg;
 }
+
+
+sub removed($)
+{   my ($self, $msg) = @_;
+    return if $self->{AS_rem_msg}{$msg}++;  # report only once
+    warning __x"removed solr {message}", message => $msg;
+}
+
 
 #------------------------
 

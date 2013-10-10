@@ -1,3 +1,5 @@
+=encoding utf8
+
 =head1 NAME
 
 Apache::Solr::Document - Apache Solr (Lucene) Document container
@@ -80,10 +82,15 @@ the field gets ignored.
 
  -Option--Default
   boost   1.0
+  update  undef
 
 =over 2
 
 =item boost => FLOAT
+
+=item update => 'add'|'set'|'inc'
+
+[0.96, Solr 4.0]
 
 =back
 
@@ -146,8 +153,8 @@ usual C<id>, you have to set it via global value C<$Apache::Solr::uniqueKey>
 
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.95,
-built on February 01, 2013. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 0.96,
+built on October 10, 2013. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 

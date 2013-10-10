@@ -4,7 +4,7 @@
 # Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr::Document;
 use vars '$VERSION';
-$VERSION = '0.95';
+$VERSION = '0.96';
 
 
 use warnings;
@@ -97,7 +97,8 @@ sub addField($$%)
                    )
       };
     my %args  = @_;
-    $field->{boost} = $args{boost} || 1.0;
+    $field->{boost}  = $args{boost} || 1.0;
+    $field->{update} = $args{update};
 
     push @{$self->{ASD_fields}}, $field;
     push @{$self->{ASD_fields_h}{$name}}, $field;
