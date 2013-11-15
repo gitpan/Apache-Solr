@@ -4,7 +4,7 @@
 # Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr::Result;
 use vars '$VERSION';
-$VERSION = '0.96';
+$VERSION = '0.97';
 
 
 use warnings;
@@ -157,7 +157,7 @@ sub selected($;$)
     # in this page?
     my $startnr  = $result->{start};
     if($rank >= $startnr)
-    {   my $docs = $result->{doc};
+    {   my $docs = $result->{doc} || [];
         $docs    = [$docs] if ref $docs eq 'HASH'; # when only one result
         if($rank - $startnr < @$docs)
         {   my $doc = $docs->[$rank - $startnr];

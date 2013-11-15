@@ -4,7 +4,7 @@
 # Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr;
 use vars '$VERSION';
-$VERSION = '0.96';
+$VERSION = '0.97';
 
 
 use warnings;
@@ -28,7 +28,12 @@ our $uniqueKey  = 'id';
 my  $mimetypes  = MIME::Types->new;
 my  $http_agent;
 
-sub _to_bool($) {$_[0] && $_[0] ne 'false' && $_[0] ne 'off' ? 'true' : 'false'}
+sub _to_bool($)
+{  my $b = shift;
+     !defined $b ? undef
+   : ($b && $b ne 'false' && $b ne 'off') ? 'true' 
+   : 'false';
+}
 
 
 sub new(@)
@@ -369,7 +374,7 @@ sub expandExtract(@)
     my @s;
     while(@p)
     {   my ($k, $v) = (shift @p, shift @p);
-        if(!ref $v)
+        if(!ref $v || ref $v eq 'SCALAR')
              { push @s, $k => $v }
         elsif($k eq 'literal' || $k eq 'literals')
              { push @s, $self->_expand_flatten($v, 'literal.') }

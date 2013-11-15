@@ -132,8 +132,8 @@ See L<documentation in the base class|Apache::Solr/"DETAILS">.
  
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.96,
-built on October 10, 2013. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 0.97,
+built on November 15, 2013. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 

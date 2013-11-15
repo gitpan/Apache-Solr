@@ -1,5 +1,5 @@
-=== README for Apache-Solr version 0.96
-=   Generated on Thu Oct 10 15:42:30 2013 by OODoc 2.01
+=== README for Apache-Solr version 0.97
+=   Generated on Fri Nov  8 22:11:05 2013 by OODoc 2.01
 
 There are various ways to install this module:
 
@@ -9,16 +9,16 @@ There are various ways to install this module:
  (2) if you use Windows, have a look at http://ppm.activestate.com/
 
  (3) if you have downloaded this module manually (as root/administrator)
-       gzip -d Apache-Solr-0.96.tar.gz
-       tar -xf Apache-Solr-0.96.tar
-       cd Apache-Solr-0.96
+       gzip -d Apache-Solr-0.97.tar.gz
+       tar -xf Apache-Solr-0.97.tar
+       cd Apache-Solr-0.97
        perl Makefile.PL
        make          # optional
        make test     # optional
        make install
 
 For usage, see the included manual-pages or
-    http://search.cpan.org/dist/Apache-Solr-0.96/
+    http://search.cpan.org/dist/Apache-Solr-0.97/
 
 Please report problems to
     http://rt.cpan.org/Dist/Display.html?Queue=Apache-Solr

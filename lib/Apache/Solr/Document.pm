@@ -4,7 +4,7 @@
 # Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr::Document;
 use vars '$VERSION';
-$VERSION = '0.96';
+$VERSION = '0.97';
 
 
 use warnings;
@@ -89,6 +89,8 @@ sub AUTOLOAD
 sub addField($$%)
 {   my $self  = shift;
     my $name  = shift;
+    defined $_[0] or return;
+
     my $field =     # important to minimalize copying of content
       { name    => $name
       , content => ( !ref $_[0]            ? shift
@@ -117,6 +119,7 @@ sub addFields($%)
     else
     {   $self->addField($_ => \$h->{$_}, @args) for sort keys %$h;
     }
+    $self;
 }
 
 #--------------------------

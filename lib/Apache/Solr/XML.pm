@@ -4,7 +4,7 @@
 # Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr::XML;
 use vars '$VERSION';
-$VERSION = '0.96';
+$VERSION = '0.97';
 
 use base 'Apache::Solr';
 
