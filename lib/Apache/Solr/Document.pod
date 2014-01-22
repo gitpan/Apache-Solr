@@ -99,7 +99,7 @@ the field gets ignored.
 The HASH or ARRAY containing NAME/CONTENT pairs.
 The OPTIONS are passed L<addField()|Apache::Solr::Document/"Accessors"> as OPTIONS.
 
-=item $obj-E<gt>B<boost>([FIELDNAME, [BOOST]])
+=item $obj-E<gt>B<boost>( [FIELDNAME, [BOOST]] )
 
 Boost value for all fields in the document.
 
@@ -130,7 +130,7 @@ example:
 
 All used unique names.
 
-=item $obj-E<gt>B<fields>([NAME])
+=item $obj-E<gt>B<fields>( [NAME] )
 
 Returns a list of HASHs, each containing at least a C<name> and a
 C<content>.  Each HASH will also contain a C<boost> value.  When a NAME
@@ -153,12 +153,12 @@ usual C<id>, you have to set it via global value C<$Apache::Solr::uniqueKey>
 
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.97,
-built on November 15, 2013. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 0.98,
+built on January 22, 2014. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 
-Copyrights 2012-2013 by [Mark Overmeer]. For other contributors see ChangeLog.
+Copyrights 2012-2014 by [Mark Overmeer]. For other contributors see ChangeLog.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

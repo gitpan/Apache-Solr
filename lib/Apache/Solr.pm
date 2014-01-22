@@ -1,10 +1,9 @@
-# Copyrights 2012-2013 by [Mark Overmeer].
+# Copyrights 2012-2014 by [Mark Overmeer].
 #  For other contributors see ChangeLog.
 # See the manual pages for details on the licensing terms.
 # Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr;
-use vars '$VERSION';
-$VERSION = '0.97';
+our $VERSION = '0.98';
 
 
 use warnings;
@@ -243,7 +242,8 @@ sub extractDocument(@)
     my %p     = $self->expandExtract(@_);
     my $data;
 
-    my $ct    = delete $p{content_type};
+    # expand* changes '_' into '.'
+    my $ct    = delete $p{'content.type'};
     my $fn    = delete $p{file};
     $p{'resource.name'} ||= $fn if $fn && !ref $fn;
 
@@ -252,19 +252,21 @@ sub extractDocument(@)
 
     if(defined $p{string})
     {   # try to avoid copying the data, which can be huge
-        $data = ref $p{string} eq 'SCALAR'
-              ? encode(utf8 => ${$p{string}})
-              : encode(utf8 => $p{string});
+        $data = $ct =~ m!^text/!i
+              ? \encode(utf8 =>
+                (ref $p{string} eq 'SCALAR' ? ${$p{string}} : $p{string}))
+              : (ref $p{string} eq 'SCALAR' ? $p{string} : \$p{string} );
+
         delete $p{string};
     }
     elsif($fn)
     {   local $/;
-        if(ref $fn eq 'GLOB') { $data = <$fn> }
+        if(ref $fn eq 'GLOB') { $data = \<$fn> }
         else
         {   local *IN;
             open IN, '<:raw', $fn
                 or fault __x"cannot read document from {fn}", fn => $fn;
-            $data = <IN>;
+            $data = \<IN>;
             close IN
                 or fault __x"read error for document {fn}", fn => $fn;
             $ct ||= $mimetypes->mimeTypeOf($fn);
@@ -274,7 +276,7 @@ sub extractDocument(@)
     {   error __x"extract requires document as file or string";
     }
 
-    $self->_extract([%p], \$data, $ct);
+    $self->_extract([%p], $data, $ct);
 }
 sub _extract($){panic "not implemented"}
 

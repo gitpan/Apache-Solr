@@ -20,15 +20,15 @@ Implement the Solr client, where the communication is in XML.
 
 This module uses XML::LibXML to parse and construct XML.
 
-See L<documentation in the base class|Apache::Solr/"DESCRIPTION">.
+Extends L<"DESCRIPTION" in Apache::Solr|Apache::Solr/"DESCRIPTION">.
  
 =head1 METHODS
 
-See L<documentation in the base class|Apache::Solr/"METHODS">.
+Extends L<"METHODS" in Apache::Solr|Apache::Solr/"METHODS">.
  
 =head2 Constructors
 
-See L<documentation in the base class|Apache::Solr/"Constructors">.
+Extends L<"Constructors" in Apache::Solr|Apache::Solr/"Constructors">.
  
 =over 4
 
@@ -65,29 +65,29 @@ LWP::UserAgent object, to share connections.
 
 =head2 Accessors
 
-See L<documentation in the base class|Apache::Solr/"Accessors">.
+Extends L<"Accessors" in Apache::Solr|Apache::Solr/"Accessors">.
  
 =over 4
 
 =item $obj-E<gt>B<agent>()
 
-See L<Apache::Solr/"Accessors">
+Inherited, see L<Apache::Solr/"Accessors">
 
-=item $obj-E<gt>B<autocommit>([BOOLEAN])
+=item $obj-E<gt>B<autocommit>( [BOOLEAN] )
 
-See L<Apache::Solr/"Accessors">
+Inherited, see L<Apache::Solr/"Accessors">
 
-=item $obj-E<gt>B<core>([CORE])
+=item $obj-E<gt>B<core>( [CORE] )
 
-See L<Apache::Solr/"Accessors">
+Inherited, see L<Apache::Solr/"Accessors">
 
-=item $obj-E<gt>B<server>([URI|STRING])
+=item $obj-E<gt>B<server>( [$uri|STRING] )
 
-See L<Apache::Solr/"Accessors">
+Inherited, see L<Apache::Solr/"Accessors">
 
 =item $obj-E<gt>B<serverVersion>()
 
-See L<Apache::Solr/"Accessors">
+Inherited, see L<Apache::Solr/"Accessors">
 
 =item $obj-E<gt>B<xmlsimple>()
 
@@ -95,34 +95,34 @@ See L<Apache::Solr/"Accessors">
 
 =head2 Commands
 
-See L<documentation in the base class|Apache::Solr/"Commands">.
+Extends L<"Commands" in Apache::Solr|Apache::Solr/"Commands">.
  
 =head2 Helpers
 
-See L<documentation in the base class|Apache::Solr/"Helpers">.
+Extends L<"Helpers" in Apache::Solr|Apache::Solr/"Helpers">.
  
 =over 4
 
-=item $obj-E<gt>B<simpleDocument>(COMMAND, [ATTRIBUTES, [CONTENT]])
+=item $obj-E<gt>B<simpleDocument>( COMMAND, [ATTRIBUTES, [CONTENT]] )
 
 Construct a simple XML structure.
 
-=item $obj-E<gt>B<simpleUpdate>(COMMAND, ATTRIBUTES, [CONTENT])
+=item $obj-E<gt>B<simpleUpdate>( COMMAND, ATTRIBUTES, [CONTENT] )
 
 =back
 
 =head1 DETAILS
 
-See L<documentation in the base class|Apache::Solr/"DETAILS">.
+Extends L<"DETAILS" in Apache::Solr|Apache::Solr/"DETAILS">.
  
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.97,
-built on November 15, 2013. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 0.98,
+built on January 22, 2014. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 
-Copyrights 2012-2013 by [Mark Overmeer]. For other contributors see ChangeLog.
+Copyrights 2012-2014 by [Mark Overmeer]. For other contributors see ChangeLog.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

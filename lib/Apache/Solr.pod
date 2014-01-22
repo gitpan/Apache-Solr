@@ -119,17 +119,17 @@ parameter use and support for the right features.
 Returns the LWP::UserAgent object which maintains the connection to
 the server.
 
-=item $obj-E<gt>B<autocommit>([BOOLEAN])
+=item $obj-E<gt>B<autocommit>( [BOOLEAN] )
 
-=item $obj-E<gt>B<core>([CORE])
+=item $obj-E<gt>B<core>( [CORE] )
 
 Returns the CORE, when not defined the default core as set by L<new(core)|Apache::Solr/"Constructors">.
 May return C<undef>.
 
-=item $obj-E<gt>B<server>([URI|STRING])
+=item $obj-E<gt>B<server>( [$uri|STRING] )
 
 Returns the URI object which refers to the server base address.  You need
-to clone() it before modifying.  You may set a new value as STRING or C<URI>
+to clone() it before modifying.  You may set a new value as STRING or C<$uri>
 object.
 
 =item $obj-E<gt>B<serverVersion>()
@@ -185,7 +185,7 @@ atomic updates.
 
 =over 4
 
-=item $obj-E<gt>B<addDocument>(DOC|ARRAY, OPTIONS)
+=item $obj-E<gt>B<addDocument>( <DOC|ARRAY>, OPTIONS )
 
 Add one or more documents (L<Apache::Solr::Document|Apache::Solr::Document> objects) to the Solr
 database on the server.
@@ -366,7 +366,7 @@ they are not very useful, it seems.
 
 =over 4
 
-=item $obj-E<gt>B<coreReload>([CORE])
+=item $obj-E<gt>B<coreReload>( [CORE] )
 
 [0.94] Load a new core (on the server) from the configuration of this
 core. While the new core is initializing, the existing one will continue
@@ -409,7 +409,7 @@ example:
   use Data::Dumper;
   print Dumper $result->decoded->{status};
 
-=item $obj-E<gt>B<coreUnload>([OPTIONS])
+=item $obj-E<gt>B<coreUnload>(OPTIONS)
 
 Removes a core from Solr. Active requests will continue to be processed, but no new requests will be sent to the named core. If a core is registered under more than one name, only the given name is removed.
 
@@ -603,12 +603,12 @@ differences is that C<Apache::Solr> has much more abstraction.
 
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.97,
-built on November 15, 2013. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 0.98,
+built on January 22, 2014. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 
-Copyrights 2012-2013 by [Mark Overmeer]. For other contributors see ChangeLog.
+Copyrights 2012-2014 by [Mark Overmeer]. For other contributors see ChangeLog.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

@@ -66,7 +66,7 @@ Apache::Solr::Result - Apache Solr (Lucene) result container
 
 [0.95] May return the L<Apache::Solr|Apache::Solr> object which created this result.
 
-=item $obj-E<gt>B<decoded>([HASH])
+=item $obj-E<gt>B<decoded>( [HASH] )
 
 =item $obj-E<gt>B<elapse>()
 
@@ -86,9 +86,9 @@ All errors collected by this object into one string.
 
 List of (expanded) parameters used to call the solr server.
 
-=item $obj-E<gt>B<request>([REQUEST])
+=item $obj-E<gt>B<request>( [REQUEST] )
 
-=item $obj-E<gt>B<response>([RESPONSE])
+=item $obj-E<gt>B<response>( [RESPONSE] )
 
 =item $obj-E<gt>B<serverError>()
 
@@ -181,12 +181,10 @@ example:
 
 =over 4
 
-=item $obj-E<gt>B<terms>(FIELD [, TERMS])
+=item $obj-E<gt>B<terms>( FIELD, [TERMS] )
 
 Returns the results of a 'terms' query (see L<Apache::Solr::queryTerms()|Apache::Solr/"Search">),
-which is a HASH.
-
-When TERMS are specified, a new table is set.
+which is a HASH.  When TERMS are specified, a new table is set.
 
 In Solr XML (at least upto v4.0) the results are presented as lst, not arr
 So: their sort order is lost.
@@ -209,7 +207,7 @@ So: their sort order is lost.
 
 =item $obj-E<gt>B<selectedPages>()
 
-=item $obj-E<gt>B<showTimings>([FILEHANDLE])
+=item $obj-E<gt>B<showTimings>( [FILEHANDLE] )
 
 Print timing informat to the FILEHANDLE, by default the selected
 file-handle (probably STDOUT).
@@ -220,18 +218,18 @@ file-handle (probably STDOUT).
 
 =over 4
 
-=item overload: B<stringification>()
+=item overload: B<stringification>
 
 =back
 
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.97,
-built on November 15, 2013. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 0.98,
+built on January 22, 2014. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 
-Copyrights 2012-2013 by [Mark Overmeer]. For other contributors see ChangeLog.
+Copyrights 2012-2014 by [Mark Overmeer]. For other contributors see ChangeLog.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
