@@ -45,12 +45,12 @@ by L<Apache::Solr::select()|Apache::Solr/"Search">.
 
 =over 4
 
-=item Apache::Solr::Document-E<gt>B<fromResult>(HASH, RANK)
+=item Apache::Solr::Document-E<gt>B<fromResult>(HASH, $rank)
 
 Create a document object from data received as result of a select
 search.
 
-=item Apache::Solr::Document-E<gt>B<new>(OPTIONS)
+=item Apache::Solr::Document-E<gt>B<new>(%options)
 
  -Option--Default
   boost   1.0
@@ -74,9 +74,9 @@ Passed to L<addFields()|Apache::Solr::Document/"Accessors">.
 
 =over 4
 
-=item $obj-E<gt>B<addField>(NAME, CONTENT, OPTIONS)
+=item $obj-E<gt>B<addField>($name, $content, %options)
 
-CONTENT can be specified as SCALAR (reference) for performance. In
+$content can be specified as SCALAR (reference) for performance. In
 that case, a reference to the original will be kept.  When C<undef>,
 the field gets ignored.
 
@@ -94,26 +94,26 @@ the field gets ignored.
 
 =back
 
-=item $obj-E<gt>B<addFields>(HASH|ARRAY, OPTIONS)
+=item $obj-E<gt>B<addFields>(HASH|ARRAY, %options)
 
 The HASH or ARRAY containing NAME/CONTENT pairs.
-The OPTIONS are passed L<addField()|Apache::Solr::Document/"Accessors"> as OPTIONS.
+The %options are passed L<addField()|Apache::Solr::Document/"Accessors"> as %options.
 
-=item $obj-E<gt>B<boost>( [FIELDNAME, [BOOST]] )
+=item $obj-E<gt>B<boost>( [$fieldname, [$boost]] )
 
 Boost value for all fields in the document.
 
 [0.93] When a FIELD NAME is given, the boost specific for that field is
 returned (not looking at the document's boost value)  This can also be
-used to set the BOOST value for the field.
+used to set the $boost value for the field.
 
-=item $obj-E<gt>B<content>(NAME)
+=item $obj-E<gt>B<content>($name)
 
-Returns the content of the first field with NAME.
+Returns the content of the first field with $name.
 
-=item $obj-E<gt>B<field>(NAME)
+=item $obj-E<gt>B<field>($name)
 
-Returns the first field with NAME (or undef).  This is a HASH, containing
+Returns the first field with $name (or undef).  This is a HASH, containing
 C<name>, C<content> and sometimes a C<boost> key.
 
 If you need the content (that's the usually the case), you can also
@@ -130,10 +130,10 @@ example:
 
 All used unique names.
 
-=item $obj-E<gt>B<fields>( [NAME] )
+=item $obj-E<gt>B<fields>( [$name] )
 
 Returns a list of HASHs, each containing at least a C<name> and a
-C<content>.  Each HASH will also contain a C<boost> value.  When a NAME
+C<content>.  Each HASH will also contain a C<boost> value.  When a $name
 is provided, only those fields are returned.
 
 =item $obj-E<gt>B<rank>()
@@ -153,8 +153,8 @@ usual C<id>, you have to set it via global value C<$Apache::Solr::uniqueKey>
 
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.98,
-built on January 22, 2014. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 1.00,
+built on December 03, 2014. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 

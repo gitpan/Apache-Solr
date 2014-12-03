@@ -3,7 +3,8 @@
 # See the manual pages for details on the licensing terms.
 # Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr::JSON;
-our $VERSION = '0.98';
+use vars '$VERSION';
+$VERSION = '1.00';
 
 use base 'Apache::Solr';
 

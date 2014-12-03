@@ -3,7 +3,8 @@
 # See the manual pages for details on the licensing terms.
 # Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr::XML;
-our $VERSION = '0.98';
+use vars '$VERSION';
+$VERSION = '1.00';
 
 use base 'Apache::Solr';
 
@@ -186,7 +187,8 @@ sub _cleanup_parsed($)
             }
         }
 
-        foreach my $type (qw/int long str float bool/)
+        # XXX haven't found a clear list of what can be expected here
+        foreach my $type (qw/int long float double bool date str text/)
         {   my $items = delete $d{$type} or next;
             foreach (ref $items eq 'ARRAY' ? @$items : $items)
             {   my ($name, $value)
@@ -205,7 +207,10 @@ sub _cleanup_parsed($)
     elsif(ref $data eq 'ARRAY')
     {   return [ map _cleanup_parsed($_), @$data ];
     }
-    else {panic $data}
+    elsif(ref $data eq 'DateTime')
+    {   return $data;
+    }
+    else {panic ref $data || $data}
 }
 
 

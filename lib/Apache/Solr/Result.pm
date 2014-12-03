@@ -3,7 +3,8 @@
 # See the manual pages for details on the licensing terms.
 # Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr::Result;
-our $VERSION = '0.98';
+use vars '$VERSION';
+$VERSION = '1.00';
 
 
 use warnings;
@@ -139,8 +140,13 @@ sub errors()
 
 #--------------------------
 
+sub _getResults()
+{   my $dec  = shift->decoded;
+    $dec->{result} // $dec->{response};
+}
+
 sub nrSelected()
-{   my $results = shift->decoded->{result}
+{   my $results = shift->_getResults
         or panic "there are no results (yet)";
 
     $results->{numFound};
@@ -149,14 +155,13 @@ sub nrSelected()
 
 sub selected($;$)
 {   my ($self, $rank, $client) = @_;
-    my $dec      = $self->decoded;
-    my $result   = $dec->{result}
+    my $result   = $self->_getResult
         or panic __x"there are no results in the answer";
 
     # in this page?
     my $startnr  = $result->{start};
     if($rank >= $startnr)
-    {   my $docs = $result->{doc} || [];
+    {   my $docs = $result->{doc} // $result->{docs} // [];
         $docs    = [$docs] if ref $docs eq 'HASH'; # when only one result
         if($rank - $startnr < @$docs)
         {   my $doc = $docs->[$rank - $startnr];
@@ -250,8 +255,8 @@ sub selectedPageNr($) { my $pz = shift->selectedPageSize; int(shift() / $pz) }
 sub selectPages()     { @{shift->{ASR_pages}} }
 sub selectedPage($)   { my $pages = shift->{ASR_pages}; $pages->[shift()] }
 sub selectedPageSize()
-{   my $result = shift->selectedPage(0)->decoded->{result};
-    my $docs   = $result ? $result->{doc} : undef;
+{   my $result = shift->selectedPage(0)->_getResults || {};
+    my $docs   = $result->{doc} // $result->{docs};
     ref $docs eq 'HASH'  ? 1 : ref $docs eq 'ARRAY' ? scalar @$docs : 50;
 }
 

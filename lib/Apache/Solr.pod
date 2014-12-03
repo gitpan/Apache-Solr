@@ -48,7 +48,7 @@ See F<F<http://wiki.apache.org/solr/> and F<http://lucene.apache.org/solr/>
 
 =over 4
 
-=item Apache::Solr-E<gt>B<new>(OPTIONS)
+=item Apache::Solr-E<gt>B<new>(%options)
 
 Create a client to connect to one "core" (collection) of the Solr
 server.
@@ -121,9 +121,9 @@ the server.
 
 =item $obj-E<gt>B<autocommit>( [BOOLEAN] )
 
-=item $obj-E<gt>B<core>( [CORE] )
+=item $obj-E<gt>B<core>( [$core] )
 
-Returns the CORE, when not defined the default core as set by L<new(core)|Apache::Solr/"Constructors">.
+Returns the $core, when not defined the default core as set by L<new(core)|Apache::Solr/"Constructors">.
 May return C<undef>.
 
 =item $obj-E<gt>B<server>( [$uri|STRING] )
@@ -145,11 +145,11 @@ latest).  Treat this version as string, to avoid rounding errors.
 
 =over 4
 
-=item $obj-E<gt>B<queryTerms>(TERMS)
+=item $obj-E<gt>B<queryTerms>($terms)
 
 Search for often used terms. See F<http://wiki.apache.org/solr/TermsComponent>
 
-TERMS are passed to L<expandTerms()|Apache::Solr/"Parameter pre-processing"> before being used.
+$terms are passed to L<expandTerms()|Apache::Solr/"Parameter pre-processing"> before being used.
 
 B<Be warned:> The result is not sorted when XML communication is used,
 even when you explicitly request it.
@@ -167,7 +167,7 @@ example:
   if(my $r = $self->queryTerms(fl => 'subject', limit => 100))
      ...
 
-=item $obj-E<gt>B<select>(PARAMETERS)
+=item $obj-E<gt>B<select>($parameters)
 
 Find information in the document collection.
 
@@ -185,7 +185,7 @@ atomic updates.
 
 =over 4
 
-=item $obj-E<gt>B<addDocument>( <DOC|ARRAY>, OPTIONS )
+=item $obj-E<gt>B<addDocument>( <$doc|ARRAY>, %options )
 
 Add one or more documents (L<Apache::Solr::Document|Apache::Solr::Document> objects) to the Solr
 database on the server.
@@ -223,7 +223,7 @@ servers.  Currently, the resolution is milli-seconds.
 
 =back
 
-=item $obj-E<gt>B<commit>(OPTIONS)
+=item $obj-E<gt>B<commit>(%options)
 
  -Option        --Default
   expungeDeletes  <false>
@@ -249,7 +249,7 @@ servers.  Currently, the resolution is milli-seconds.
 
 =back
 
-=item $obj-E<gt>B<delete>(OPTIONS)
+=item $obj-E<gt>B<delete>(%options)
 
 Remove one or more documents, based on id or query.
 
@@ -284,13 +284,13 @@ the documents to be removed.
 
 =back
 
-=item $obj-E<gt>B<extractDocument>(OPTIONS)
+=item $obj-E<gt>B<extractDocument>(%options)
 
 Call the Solr Tika built-in to have the server translate various
 kinds of structured documents into Solr searchable documents.  This
 component is also called "Solr Cell".
 
-The OPTIONS are mostly passed on as attributes to the server call,
+The %options are mostly passed on as attributes to the server call,
 but there are a few more.  You need to pass either a C<file> or
 C<string> with data.
 
@@ -326,7 +326,7 @@ example:
    my $r = $solr->extractDocument(file => 'design.pdf'
      , literal_id => 'host');
 
-=item $obj-E<gt>B<optimize>(OPTIONS)
+=item $obj-E<gt>B<optimize>(%options)
 
  -Option      --Default
   maxSegments   1
@@ -366,7 +366,7 @@ they are not very useful, it seems.
 
 =over 4
 
-=item $obj-E<gt>B<coreReload>( [CORE] )
+=item $obj-E<gt>B<coreReload>( [$core] )
 
 [0.94] Load a new core (on the server) from the configuration of this
 core. While the new core is initializing, the existing one will continue
@@ -409,7 +409,7 @@ example:
   use Data::Dumper;
   print Dumper $result->decoded->{status};
 
-=item $obj-E<gt>B<coreUnload>(OPTIONS)
+=item $obj-E<gt>B<coreUnload>(%options)
 
 Removes a core from Solr. Active requests will continue to be processed, but no new requests will be sent to the named core. If a core is registered under more than one name, only the given name is removed.
 
@@ -448,9 +448,9 @@ General rules:
 
 =over 4
 
-=item $obj-E<gt>B<deprecated>(MESSAGE)
+=item $obj-E<gt>B<deprecated>($message)
 
-Produce a warning MESSAGE about deprecated parameters with the
+Produce a warning $message about deprecated parameters with the
 indicated server version.
 
 =item $obj-E<gt>B<expandExtract>(PAIRS|ARRAY)
@@ -531,14 +531,14 @@ example:
 
   my $r = $self->queryTerms(fl => 'subject', limit => 100);
 
-=item $obj-E<gt>B<ignored>(MESSAGE)
+=item $obj-E<gt>B<ignored>($message)
 
-Produce a warning MESSAGE about parameters which will get ignored
+Produce a warning $message about parameters which will get ignored
 because they were not yet supported by the indicated server version.
 
-=item $obj-E<gt>B<removed>(MESSAGE)
+=item $obj-E<gt>B<removed>($message)
 
-Produce a warning MESSAGE about parameters which will not be passed on,
+Produce a warning $message about parameters which will not be passed on,
 because they were removed from the indicated server version.
 
 =back
@@ -547,7 +547,7 @@ because they were removed from the indicated server version.
 
 =over 4
 
-=item $obj-E<gt>B<endpoint>(ACTION, OPTIONS)
+=item $obj-E<gt>B<endpoint>($action, %options)
 
 Compute the address to be called (for HTTP)
 
@@ -603,8 +603,8 @@ differences is that C<Apache::Solr> has much more abstraction.
 
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.98,
-built on January 22, 2014. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 1.00,
+built on December 03, 2014. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 

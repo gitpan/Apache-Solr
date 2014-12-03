@@ -32,7 +32,7 @@ Extends L<"Constructors" in Apache::Solr|Apache::Solr/"Constructors">.
  
 =over 4
 
-=item Apache::Solr::XML-E<gt>B<new>(OPTIONS)
+=item Apache::Solr::XML-E<gt>B<new>(%options)
 
 Creates a new object.  You may have objects shared the same
 LWP::UserAgent object, to share connections.
@@ -77,7 +77,7 @@ Inherited, see L<Apache::Solr/"Accessors">
 
 Inherited, see L<Apache::Solr/"Accessors">
 
-=item $obj-E<gt>B<core>( [CORE] )
+=item $obj-E<gt>B<core>( [$core] )
 
 Inherited, see L<Apache::Solr/"Accessors">
 
@@ -103,11 +103,11 @@ Extends L<"Helpers" in Apache::Solr|Apache::Solr/"Helpers">.
  
 =over 4
 
-=item $obj-E<gt>B<simpleDocument>( COMMAND, [ATTRIBUTES, [CONTENT]] )
+=item $obj-E<gt>B<simpleDocument>( $command, [$attributes, [$content]] )
 
 Construct a simple XML structure.
 
-=item $obj-E<gt>B<simpleUpdate>( COMMAND, ATTRIBUTES, [CONTENT] )
+=item $obj-E<gt>B<simpleUpdate>( $command, $attributes, [$content] )
 
 =back
 
@@ -117,8 +117,8 @@ Extends L<"DETAILS" in Apache::Solr|Apache::Solr/"DETAILS">.
  
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.98,
-built on January 22, 2014. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 1.00,
+built on December 03, 2014. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 

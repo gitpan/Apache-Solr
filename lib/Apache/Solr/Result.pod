@@ -33,7 +33,7 @@ Apache::Solr::Result - Apache Solr (Lucene) result container
 
 =over 4
 
-=item Apache::Solr::Result-E<gt>B<new>(OPTIONS)
+=item Apache::Solr::Result-E<gt>B<new>(%options)
 
  -Option  --Default
   core      undef
@@ -86,9 +86,9 @@ All errors collected by this object into one string.
 
 List of (expanded) parameters used to call the solr server.
 
-=item $obj-E<gt>B<request>( [REQUEST] )
+=item $obj-E<gt>B<request>( [$request] )
 
-=item $obj-E<gt>B<response>( [RESPONSE] )
+=item $obj-E<gt>B<response>( [$response] )
 
 =item $obj-E<gt>B<serverError>()
 
@@ -124,9 +124,9 @@ example:
 
 =over 4
 
-=item $obj-E<gt>B<highlighted>(DOCUMENT)
+=item $obj-E<gt>B<highlighted>($document)
 
-Return information which relates to the selected DOCUMENT.
+Return information which relates to the selected $document.
 
 =item $obj-E<gt>B<nextSelected>()
 
@@ -156,10 +156,10 @@ example:
   # easier:
   while(my $doc = $result->nextSelected) ...
 
-=item $obj-E<gt>B<selected>(RANK)
+=item $obj-E<gt>B<selected>($rank)
 
 Returns information about the query by L<Apache::Solr::select()|Apache::Solr/"Search"> on
-position RANK (count starts at 0)  Returned is a L<Apache::Solr::Document|Apache::Solr::Document>
+position $rank (count starts at 0)  Returned is a L<Apache::Solr::Document|Apache::Solr::Document>
 object.
 
 The first request will take a certain number of "rows".  This routine
@@ -181,10 +181,10 @@ example:
 
 =over 4
 
-=item $obj-E<gt>B<terms>( FIELD, [TERMS] )
+=item $obj-E<gt>B<terms>( $field, [$terms] )
 
 Returns the results of a 'terms' query (see L<Apache::Solr::queryTerms()|Apache::Solr/"Search">),
-which is a HASH.  When TERMS are specified, a new table is set.
+which is a HASH.  When $terms are specified, a new table is set.
 
 In Solr XML (at least upto v4.0) the results are presented as lst, not arr
 So: their sort order is lost.
@@ -195,21 +195,21 @@ So: their sort order is lost.
 
 =over 4
 
-=item $obj-E<gt>B<replaceParams>(HASH, OLDPARAMS)
+=item $obj-E<gt>B<replaceParams>(HASH, $oldparams)
 
-=item $obj-E<gt>B<selectedPage>(PAGENR)
+=item $obj-E<gt>B<selectedPage>($pagenr)
 
-=item $obj-E<gt>B<selectedPageLoad>(RANK, CLIENT)
+=item $obj-E<gt>B<selectedPageLoad>($rank, $client)
 
-=item $obj-E<gt>B<selectedPageNr>(RANK)
+=item $obj-E<gt>B<selectedPageNr>($rank)
 
 =item $obj-E<gt>B<selectedPageSize>()
 
 =item $obj-E<gt>B<selectedPages>()
 
-=item $obj-E<gt>B<showTimings>( [FILEHANDLE] )
+=item $obj-E<gt>B<showTimings>( [$fh] )
 
-Print timing informat to the FILEHANDLE, by default the selected
+Print timing informat to the $fh, by default the selected
 file-handle (probably STDOUT).
 
 =back
@@ -218,14 +218,14 @@ file-handle (probably STDOUT).
 
 =over 4
 
-=item overload: B<stringification>
+=item overload: B<stringification >
 
 =back
 
 =head1 SEE ALSO
 
-This module is part of Apache-Solr distribution version 0.98,
-built on January 22, 2014. Website: F<http://perl.overmeer.net>
+This module is part of Apache-Solr distribution version 1.00,
+built on December 03, 2014. Website: F<http://perl.overmeer.net>
 
 =head1 LICENSE
 
