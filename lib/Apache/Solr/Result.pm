@@ -4,7 +4,7 @@
 # Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr::Result;
 use vars '$VERSION';
-$VERSION = '1.00';
+$VERSION = '1.01';
 
 
 use warnings;
@@ -155,7 +155,7 @@ sub nrSelected()
 
 sub selected($;$)
 {   my ($self, $rank, $client) = @_;
-    my $result   = $self->_getResult
+    my $result   = $self->_getResults
         or panic __x"there are no results in the answer";
 
     # in this page?

@@ -30,4 +30,4 @@ requires:
   Time::HiRes: 0
   URI: 0
   XML::LibXML::Simple: 0
-version: 1.00
+version: 1.01

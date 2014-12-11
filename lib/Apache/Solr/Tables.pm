@@ -4,7 +4,7 @@
 # Pod stripped from pm file by OODoc 2.01.
 package Apache::Solr::Tables;
 use vars '$VERSION';
-$VERSION = '1.00';
+$VERSION = '1.01';
 
 use base 'Exporter';
 
